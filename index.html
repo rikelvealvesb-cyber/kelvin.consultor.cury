@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rikelve - Consultor Imobiliário Cury</title>
+    <title>Kelvin - Consultor Imobiliário Cury</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #0046be;
-            --secondary-color: #002d74;
-            --accent-color: #25d366;
-            --bg-color: #f8f9fa;
-            --text-color: #333333;
+            --primary: #0046be;
+            --primary-dark: #002d74;
+            --accent: #25d366;
+            --bg: #f4f6f9;
+            --text: #2c3e50;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--text);
             line-height: 1.6;
         }
 
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             text-align: center;
-            padding: 2.5rem 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 3rem 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: fadeInDown 0.8s ease-in-out;
         }
 
         header h1 {
-            font-size: 2.2rem;
+            font-size: 2.3rem;
             margin-bottom: 0.5rem;
         }
 
@@ -45,27 +47,102 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
 
         .card {
             background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 2.2rem;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
             margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-in-out;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
         }
 
         h2 {
-            color: var(--secondary-color);
+            color: var(--primary-dark);
             font-size: 1.5rem;
             margin-bottom: 1.2rem;
-            border-bottom: 2px solid var(--primary-color);
+            border-bottom: 3px solid var(--primary);
             padding-bottom: 0.5rem;
+            display: inline-block;
         }
 
+        /* Vídeo de Apresentação */
+        .video-box {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Abas de Escolha (Comprar x Parceiro) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media(max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #ddd;
+            padding: 1.2rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: #555;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background-color: #f0f4ff;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0, 70, 190, 0.15);
+        }
+
+        .section-content {
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Campos e Formulários */
         .form-group {
             margin-bottom: 1.2rem;
         }
@@ -74,41 +151,43 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #555;
+            color: #444;
         }
 
         select, input, textarea {
             width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
+            padding: 0.9rem;
+            border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         select:focus, input:focus, textarea:focus {
-            border-color: var(--primary-color);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 70, 190, 0.1);
         }
 
-        .book-container {
-            display: none;
+        .book-box {
             background: #eef2f7;
-            padding: 1.5rem;
+            padding: 1.2rem;
             border-radius: 8px;
             margin-top: 1rem;
             text-align: center;
+            display: none;
         }
 
-        .book-container.active {
+        .book-box.active {
             display: block;
+            animation: fadeIn 0.4s;
         }
 
         .btn {
             display: inline-block;
-            background-color: var(--primary-color);
+            background-color: var(--primary);
             color: white;
-            padding: 0.8rem 1.5rem;
+            padding: 0.9rem 1.5rem;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -116,15 +195,14 @@
             cursor: pointer;
             text-decoration: none;
             transition: background 0.3s, transform 0.1s;
-            margin-top: 0.5rem;
         }
 
         .btn:hover {
-            background-color: var(--secondary-color);
+            background-color: var(--primary-dark);
         }
 
         .btn-whatsapp {
-            background-color: var(--accent-color);
+            background-color: var(--accent);
             width: 100%;
             text-align: center;
             font-size: 1.1rem;
@@ -135,148 +213,281 @@
             background-color: #1ebe5d;
         }
 
+        /* Regras do Programa de Parceiros */
+        .partner-info {
+            background: #fdf8e2;
+            border-left: 5px solid #f1c40f;
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .partner-info h3 {
+            color: #b7950b;
+            margin-bottom: 0.5rem;
+        }
+
         footer {
             text-align: center;
             padding: 1.5rem;
             color: #777;
             font-size: 0.9rem;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Rikelve - Consultor Imobiliário Cury</h1>
-        <p>Encontre o imóvel perfeito para você na Grande São Paulo</p>
+        <h1>Kelvin - Consultor Imobiliário Cury</h1>
+        <p>Conquiste seu imóvel na planta nas melhores regiões de São Paulo!</p>
     </header>
 
     <div class="container">
 
-        <!-- SEÇÃO DE ESCOLHA DE REGIÃO E BOOKS -->
-        <div class="card">
-            <h2>1. Escolha a Região de Interesse</h2>
-            <div class="form-group">
-                <label for="regiao">Selecione onde deseja morar ou investir:</label>
-                <select id="regiao" onchange="mostrarBook()">
-                    <option value="">-- Selecione uma Região --</option>
-                    <option value="Sao Paulo - Zona Leste">São Paulo - Zona Leste</option>
-                    <option value="Sao Paulo - Zona Sul">São Paulo - Zona Sul</option>
-                    <option value="Sao Paulo - Zona Norte">São Paulo - Zona Norte</option>
-                    <option value="Sao Paulo - Zona Oeste">São Paulo - Zona Oeste</option>
-                    <option value="Sao Paulo - Centro">São Paulo - Centro</option>
-                    <option value="Grande Sao Paulo - ABC Paulista">Grande São Paulo - ABC Paulista</option>
-                    <option value="Grande Sao Paulo - Guarulhos/Osasco">Grande São Paulo - Guarulhos / Osasco</option>
-                </select>
-            </div>
-
-            <!-- Box do Book Dinâmico -->
-            <div id="book-box" class="book-container">
-                <p id="book-texto" style="margin-bottom: 1rem; font-weight: 600;"></p>
-                <a id="book-link" href="#" target="_blank" class="btn">📄 Visualizar / Baixar Book Digital</a>
+        <div class="card video-box">
+            <h2>Conheça Meu Trabalho</h2>
+            <p style="margin-bottom: 1rem; color: #666; font-size: 0.95rem;">Assista ao vídeo abaixo para entender como posso te ajudar:</p>
+            <div class="video-container">
+                <iframe src="https://drive.google.com/file/d/1C-nKUgq283hnYKpIWx5nUxgNXw2BGG7X/preview" allowfullscreen></iframe>
             </div>
         </div>
 
-        <!-- SEÇÃO DE CONTATO E ATENDIMENTO -->
         <div class="card">
-            <h2>2. Seus Dados para Atendimento</h2>
-            <p style="margin-bottom: 1rem; font-size: 0.95rem; color: #666;">Preencha abaixo para receber uma simulação personalizada e atendimento direto no WhatsApp.</p>
-            
-            <div class="form-group">
-                <label for="nome">Seu Nome Completo:</label>
-                <input type="text" id="nome" placeholder="Digite seu nome">
+            <h2>O que você deseja fazer hoje?</h2>
+            <div class="options-grid" style="margin-top: 1.2rem;">
+                <button type="button" class="option-btn selected" id="btn-comprar" onclick="mudarFluxo('comprar')">🏠 Comprar Meu Apê</button>
+                <button type="button" class="option-btn" id="btn-parceiro" onclick="mudarFluxo('parceiro')">🤝 Quero Ser Parceiro (Indique & Ganhe)</button>
             </div>
 
-            <div class="form-group">
-                <label for="telefone">Seu WhatsApp / Telefone:</label>
-                <input type="text" id="telefone" placeholder="(11) 99999-9999">
+            <div id="fluxo-comprar" class="section-content active">
+                <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                    <p><strong>Aproveite a Oportunidade:</strong> Com apenas <strong>R$ 800 de entrada</strong> eu consigo sua aprovação nas melhores regiões de São Paulo!</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="regiao-busca">Digite ou escolha a região/bairro de interesse:</label>
+                    <input type="text" id="regiao-busca" list="regioes-sp" placeholder="Ex: Pompeia, Perdizes, Pinheiros, Osasco..." oninput="verificarRegiao()">
+                    <datalist id="regioes-sp">
+                        <option value="São Paulo - Centro">
+                        <option value="São Paulo - Pompeia">
+                        <option value="São Paulo - Perdizes">
+                        <option value="São Paulo - Pinheiros">
+                        <option value="São Paulo - Vila Mariana">
+                        <option value="São Paulo - Mooca">
+                        <option value="São Paulo - Tatuapé">
+                        <option value="São Paulo - Santana">
+                        <option value="São Paulo - Casa Verde">
+                        <option value="São Paulo - Interlagos">
+                        <option value="São Paulo - Campo Limpo">
+                        <option value="Osasco">
+                        <option value="Guarulhos">
+                        <option value="ABC Paulista (Santo André, SBC, Diadema)">
+                        <option value="Barueri / Alphaville">
+                        <option value="São Bernardo do Campo">
+                        <option value="Santo André">
+                        <option value="Mauá">
+                        <option value="Diadema">
+                    </datalist>
+                </div>
+
+                <div id="book-container" class="book-box">
+                    <p id="book-texto" style="font-weight: 600; margin-bottom: 0.8rem;"></p>
+                    <a id="book-link" href="#" target="_blank" class="btn">📄 Baixar / Ver Book da Região</a>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 1.5rem 0;">
+
+                <div class="form-group">
+                    <label for="mcmv">Você já conhece o programa **Minha Casa Minha Vida**?</label>
+                    <select id="mcmv">
+                        <option value="">Selecione...</option>
+                        <option value="Sim, já conheço">Sim, já conheço</option>
+                        <option value="Não conheço / Tenho dúvidas">Não conheço / Tenho dúvidas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome-c">Seu Nome Completo:</label>
+                    <input type="text" id="nome-c" placeholder="Digite seu nome">
+                </div>
+
+                <div class="form-group">
+                    <label for="tel-c">Seu WhatsApp:</label>
+                    <input type="text" id="tel-c" placeholder="(11) 99999-9999">
+                </div>
+
+                <div class="form-group">
+                    <label for="indicacao-recebida">Veio por indicação de alguém?</label>
+                    <select id="indicacao-recebida" onchange="alternarCampoIndicador()">
+                        <option value="Não">Não</option>
+                        <option value="Sim">Sim</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="grupo-nome-indicador" style="display: none;">
+                    <label for="nome-indicador">Qual o nome da pessoa que te indicou?</label>
+                    <input type="text" id="nome-indicador" placeholder="Digite o nome completo do indicador">
+                </div>
+
+                <button type="button" class="btn btn-whatsapp" onclick="enviarWhatsAppComprar()">💬 Falar com o Kelvin no WhatsApp</button>
             </div>
 
-            <div class="form-group">
-                <label for="renda">Renda Bruta Familiar (para cálculo de subsídio):</label>
-                <input type="text" id="renda" placeholder="Ex: R$ 4.500,00">
+            <div id="fluxo-parceiro" class="section-content">
+                <div class="partner-info">
+                    <h3>💡 Como funciona o Programa de Parceiros do Kelvin?</h3>
+                    <p>Eu pago por <strong>qualquer indicação</strong> feita por você! Se a pessoa que você indicar fechar negócio comigo, eu te pago uma comissão de **R$ 1.000 (mil reais)** para cada negócio fechado!</p>
+                    <br>
+                    <p><strong>Como fazer a abordagem (É super simples e grátis!):</strong></p>
+                    <ol style="margin-left: 1.2rem; margin-top: 0.5rem;">
+                        <li>Basta entrar em contato comigo primeiro pelo WhatsApp para se cadastrar como parceiro oficial (custo zero).</li>
+                        <li>Comece a buscar pessoas que desejam comprar um imóvel ou sair do aluguel.</li>
+                        <li>Envie este meu site para elas.</li>
+                        <li>Peça para a pessoa escolher a opção <strong>"Comprar meu apê"</strong> e preencher o nome de quem a indicou (o seu nome!).</li>
+                    </ol>
+                </div>
+
+                <div class="form-group">
+                    <label for="nome-p">Seu Nome Completo (Parceiro):</label>
+                    <input type="text" id="nome-p" placeholder="Digite seu nome">
+                </div>
+
+                <div class="form-group">
+                    <label for="tel-p">Seu WhatsApp (Para receber seus prêmios/comissões):</label>
+                    <input type="text" id="tel-p" placeholder="(11) 99999-9999">
+                </div>
+
+                <button type="button" class="btn btn-whatsapp" onclick="enviarWhatsAppParceiro()">💬 Quero me Cadastrar como Parceiro no WhatsApp</button>
             </div>
 
-            <div class="form-group">
-                <label for="fgts">Possui FGTS acumulado?</label>
-                <select id="fgts">
-                    <option value="Sim">Sim</option>
-                    <option value="Nao">Não</option>
-                    <option value="Não sei informar">Não sei informar</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="observacoes">Observações ou Preferências:</label>
-                <textarea id="observacoes" rows="3" placeholder="Ex: Procurei apartamento de 2 dormitórios com vaga..."></textarea>
-            </div>
-
-            <button type="button" class="btn btn-whatsapp" onclick="enviarWhatsApp()">💬 Enviar para o WhatsApp do Rikelve</button>
         </div>
 
     </div>
 
     <footer>
-        <p>&copy; 2026 Rikelve - Consultor Autorizado Cury Construtora. Todos os direitos reservados.</p>
+        <p>&copy; 2026 Kelvin - Consultor Imobiliário Cury. Todos os direitos reservados.</p>
     </footer>
 
     <script>
-        // Links dos books por região (substitua os '#' pelos links reais dos seus PDFs)
-        const booksData = {
-            "Sao Paulo - Zona Leste": "https://suaurl-do-book-zona-leste.pdf",
-            "Sao Paulo - Zona Sul": "https://suaurl-do-book-zona-sul.pdf",
-            "Sao Paulo - Zona Norte": "https://suaurl-do-book-zona-norte.pdf",
-            "Sao Paulo - Zona Oeste": "https://suaurl-do-book-zona-oeste.pdf",
-            "Sao Paulo - Centro": "https://suaurl-do-book-centro.pdf",
-            "Grande Sao Paulo - ABC Paulista": "https://suaurl-do-book-abc.pdf",
-            "Grande Sao Paulo - Guarulhos/Osasco": "https://suaurl-do-book-guarulhos-osasco.pdf"
+        // Links dinâmicos dos books (substitua pelos seus links reais do Google Drive/PDFs)
+        const booksRegionais = {
+            "default": "https://seu-link-padrao-books.pdf",
+            "Pompeia": "https://seu-link-book-pompeia.pdf",
+            "Perdizes": "https://seu-link-book-perdizes.pdf",
+            "Pinheiros": "https://seu-link-book-pinheiros.pdf",
+            "Osasco": "https://seu-link-book-osasco.pdf",
+            "Guarulhos": "https://seu-link-book-guarulhos.pdf"
         };
 
-        function mostrarBook() {
-            const select = document.getElementById("regiao");
-            const regiaoSelecionada = select.value;
-            const bookBox = document.getElementById("book-box");
+        function mudarFluxo(tipo) {
+            const btnComprar = document.getElementById("btn-comprar");
+            const btnParceiro = document.getElementById("btn-parceiro");
+            const fluxoComprar = document.getElementById("fluxo-comprar");
+            const fluxoParceiro = document.getElementById("fluxo-parceiro");
+
+            if (tipo === 'comprar') {
+                btnComprar.classList.add("selected");
+                btnParceiro.classList.remove("selected");
+                fluxoComprar.classList.add("active");
+                fluxoParceiro.classList.remove("active");
+            } else {
+                btnParceiro.classList.add("selected");
+                btnComprar.classList.remove("selected");
+                fluxoParceiro.classList.add("active");
+                fluxoComprar.classList.remove("active");
+            }
+        }
+
+        function verificarRegiao() {
+            const inputVal = document.getElementById("regiao-busca").value.trim();
+            const bookBox = document.getElementById("book-container");
             const bookTexto = document.getElementById("book-texto");
             const bookLink = document.getElementById("book-link");
 
-            if (regiaoSelecionada && booksData[regiaoSelecionada]) {
-                bookTexto.innerText = `Book exclusivo para a região: ${regiaoSelecionada}`;
-                bookLink.href = booksData[regiaoSelecionada];
+            if (inputVal.length > 2) {
+                bookTexto.innerText = `Book digital exclusivo para a região selecionada.`;
+                // Procura um link específico ou usa o padrão geral se não houver exato
+                let linkPdf = booksRegionais[inputVal] || "https://drive.google.com/drive/folders/seu-link-geral-de-books";
+                bookLink.href = linkPdf;
                 bookBox.classList.add("active");
             } else {
                 bookBox.classList.remove("active");
             }
         }
 
-        function enviarWhatsApp() {
-            const regiao = document.getElementById("regiao").value;
-            const nome = document.getElementById("nome").value;
-            const telefone = document.getElementById("telefone").value;
-            const renda = document.getElementById("renda").value;
-            const fgts = document.getElementById("fgts").value;
-            const observacoes = document.getElementById("observacoes").value;
+        function alternarCampoIndicador() {
+            const selectInd = document.getElementById("indicacao-recebida").value;
+            const grupoNome = document.getElementById("grupo-nome-indicador");
+            if (selectInd === "Sim") {
+                grupoNome.style.display = "block";
+            } else {
+                grupoNome.style.display = "none";
+            }
+        }
+
+        function enviarWhatsAppComprar() {
+            const regiao = document.getElementById("regiao-busca").value;
+            const mcmv = document.getElementById("mcmv").value;
+            const nome = document.getElementById("nome-c").value;
+            const telefone = document.getElementById("tel-c").value;
+            const indicou = document.getElementById("indicacao-receb-ida") ? document.getElementById("indicacao-recebida").value : "Não";
+            const nomeIndicador = document.getElementById("nome-indicador").value;
 
             if (!nome || !telefone) {
-                alert("Por favor, preencha pelo menos seu Nome e WhatsApp.");
+                alert("Por favor, preencha seu Nome e WhatsApp.");
                 return;
             }
 
-            // Formata a mensagem estruturada para o WhatsApp
-            let mensagem = `*Olá, Rikelve! Vim através do seu site de atendimento.*\n\n`;
-            mensagem += `*Região de Interesse:* ${regiao || 'Não especificada'}\n`;
+            let mensagem = `*Olá, Kelvin! Quero comprar meu apê.*\n\n`;
+            mensagem += `*Região de Interesse:* ${regiao || 'Não informada'}\n`;
+            mensagem += `*Já conhecia o Minha Casa Minha Vida?* ${mcmv || 'Não informado'}\n`;
             mensagem += `*Nome:* ${nome}\n`;
             mensagem += `*Telefone:* ${telefone}\n`;
-            mensagem += `*Renda Bruta:* ${renda || 'Não informada'}\n`;
-            mensagem += `*Uso de FGTS:* ${fgts}\n`;
-            if(observacoes) {
-                mensagem += `*Observações:* ${observacoes}\n`;
+            
+            const selInd = document.getElementById("indicacao-recebida").value;
+            if (selInd === "Sim") {
+                mensagem += `* Veio por Indicação?* Sim, indicado(a) por: *${nomeIndicador || 'Não informado'}*\n`;
+            } else {
+                mensagem += `* Veio por Indicação?* Não\n`;
             }
 
-            const numeroWhatsApp = "5511954962246";
-            const urlWpp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+            const numWpp = "5511954962246";
+            window.open(`https://api.whatsapp.com/send?phone=${numWpp}&text=${encodeURIComponent(mensagem)}`, '_blank');
+        }
 
-            window.open(urlWpp, '_blank');
+        function enviarWhatsAppParceiro() {
+            const nome = document.getElementById("nome-p").value;
+            const telefone = document.getElementById("tel-p").value;
+
+            if (!nome || !telefone) {
+                alert("Por favor, preencha seu Nome e WhatsApp para o cadastro de parceiro.");
+                return;
+            }
+
+            let mensagem = `*Olá, Kelvin! Quero ser seu PARCEIRO de indicações.*\n\n`;
+            mensagem += `*Meu Nome:* ${nome}\n`;
+            mensagem += `*Meu WhatsApp:* ${telefone}\n\n`;
+            mensagem += `Estou pronto para começar a indicar pessoas e garantir minhas comissões de R$ 1.000 por venda fechada!`;
+
+            const numWpp = "5511954962246";
+            window.open(`https://api.whatsapp.com/send?phone=${numWpp}&text=${encodeURIComponent(mensagem)}`, '_blank');
         }
     </script>
 </body>
-                                                                                   </html>
-
+</html>
