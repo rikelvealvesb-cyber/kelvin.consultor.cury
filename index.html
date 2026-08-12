@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rikelve - Consultor Imobiliário Cury</title>
+    <style>
+        :root {
+            --primary-color: #0046be;
+            --secondary-color: #002d74;
+            --accent-color: #25d366;
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .book-container {
+            display: none;
+            background: #eef2f7;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .book-container.active {
+            display: block;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-whatsapp {
+            background-color: var(--accent-color);
+            width: 100%;
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #1ebe5d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Rikelve - Consultor Imobiliário Cury</h1>
+        <p>Encontre o imóvel perfeito para você na Grande São Paulo</p>
+    </header>
+
+    <div class="container">
+
+        <!-- SEÇÃO DE ESCOLHA DE REGIÃO E BOOKS -->
+        <div class="card">
+            <h2>1. Escolha a Região de Interesse</h2>
+            <div class="form-group">
+                <label for="regiao">Selecione onde deseja morar ou investir:</label>
+                <select id="regiao" onchange="mostrarBook()">
+                    <option value="">-- Selecione uma Região --</option>
+                    <option value="Sao Paulo - Zona Leste">São Paulo - Zona Leste</option>
+                    <option value="Sao Paulo - Zona Sul">São Paulo - Zona Sul</option>
+                    <option value="Sao Paulo - Zona Norte">São Paulo - Zona Norte</option>
+                    <option value="Sao Paulo - Zona Oeste">São Paulo - Zona Oeste</option>
+                    <option value="Sao Paulo - Centro">São Paulo - Centro</option>
+                    <option value="Grande Sao Paulo - ABC Paulista">Grande São Paulo - ABC Paulista</option>
+                    <option value="Grande Sao Paulo - Guarulhos/Osasco">Grande São Paulo - Guarulhos / Osasco</option>
+                </select>
+            </div>
+
+            <!-- Box do Book Dinâmico -->
+            <div id="book-box" class="book-container">
+                <p id="book-texto" style="margin-bottom: 1rem; font-weight: 600;"></p>
+                <a id="book-link" href="#" target="_blank" class="btn">📄 Visualizar / Baixar Book Digital</a>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DE CONTATO E ATENDIMENTO -->
+        <div class="card">
+            <h2>2. Seus Dados para Atendimento</h2>
+            <p style="margin-bottom: 1rem; font-size: 0.95rem; color: #666;">Preencha abaixo para receber uma simulação personalizada e atendimento direto no WhatsApp.</p>
+            
+            <div class="form-group">
+                <label for="nome">Seu Nome Completo:</label>
+                <input type="text" id="nome" placeholder="Digite seu nome">
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">Seu WhatsApp / Telefone:</label>
+                <input type="text" id="telefone" placeholder="(11) 99999-9999">
+            </div>
+
+            <div class="form-group">
+                <label for="renda">Renda Bruta Familiar (para cálculo de subsídio):</label>
+                <input type="text" id="renda" placeholder="Ex: R$ 4.500,00">
+            </div>
+
+            <div class="form-group">
+                <label for="fgts">Possui FGTS acumulado?</label>
+                <select id="fgts">
+                    <option value="Sim">Sim</option>
+                    <option value="Nao">Não</option>
+                    <option value="Não sei informar">Não sei informar</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="observacoes">Observações ou Preferências:</label>
+                <textarea id="observacoes" rows="3" placeholder="Ex: Procurei apartamento de 2 dormitórios com vaga..."></textarea>
+            </div>
+
+            <button type="button" class="btn btn-whatsapp" onclick="enviarWhatsApp()">💬 Enviar para o WhatsApp do Rikelve</button>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Rikelve - Consultor Autorizado Cury Construtora. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Links dos books por região (substitua os '#' pelos links reais dos seus PDFs)
+        const booksData = {
+            "Sao Paulo - Zona Leste": "https://suaurl-do-book-zona-leste.pdf",
+            "Sao Paulo - Zona Sul": "https://suaurl-do-book-zona-sul.pdf",
+            "Sao Paulo - Zona Norte": "https://suaurl-do-book-zona-norte.pdf",
+            "Sao Paulo - Zona Oeste": "https://suaurl-do-book-zona-oeste.pdf",
+            "Sao Paulo - Centro": "https://suaurl-do-book-centro.pdf",
+            "Grande Sao Paulo - ABC Paulista": "https://suaurl-do-book-abc.pdf",
+            "Grande Sao Paulo - Guarulhos/Osasco": "https://suaurl-do-book-guarulhos-osasco.pdf"
+        };
+
+        function mostrarBook() {
+            const select = document.getElementById("regiao");
+            const regiaoSelecionada = select.value;
+            const bookBox = document.getElementById("book-box");
+            const bookTexto = document.getElementById("book-texto");
+            const bookLink = document.getElementById("book-link");
+
+            if (regiaoSelecionada && booksData[regiaoSelecionada]) {
+                bookTexto.innerText = `Book exclusivo para a região: ${regiaoSelecionada}`;
+                bookLink.href = booksData[regiaoSelecionada];
+                bookBox.classList.add("active");
+            } else {
+                bookBox.classList.remove("active");
+            }
+        }
+
+        function enviarWhatsApp() {
+            const regiao = document.getElementById("regiao").value;
+            const nome = document.getElementById("nome").value;
+            const telefone = document.getElementById("telefone").value;
+            const renda = document.getElementById("renda").value;
+            const fgts = document.getElementById("fgts").value;
+            const observacoes = document.getElementById("observacoes").value;
+
+            if (!nome || !telefone) {
+                alert("Por favor, preencha pelo menos seu Nome e WhatsApp.");
+                return;
+            }
+
+            // Formata a mensagem estruturada para o WhatsApp
+            let mensagem = `*Olá, Rikelve! Vim através do seu site de atendimento.*\n\n`;
+            mensagem += `*Região de Interesse:* ${regiao || 'Não especificada'}\n`;
+            mensagem += `*Nome:* ${nome}\n`;
+            mensagem += `*Telefone:* ${telefone}\n`;
+            mensagem += `*Renda Bruta:* ${renda || 'Não informada'}\n`;
+            mensagem += `*Uso de FGTS:* ${fgts}\n`;
+            if(observacoes) {
+                mensagem += `*Observações:* ${observacoes}\n`;
+            }
+
+            const numeroWhatsApp = "5511954962246";
+            const urlWpp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+
+            window.open(urlWpp, '_blank');
+        }
+    </script>
+</body>
+                                                                                   </html>
+
