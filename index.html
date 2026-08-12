@@ -78,7 +78,7 @@
             display: inline-block;
         }
 
-        /* Bloco de Apresentação Expressiva (Substituiu o vídeo) */
+        /* Bloco de Apresentação Expressiva */
         .intro-box {
             background: linear-gradient(135deg, #f0f4ff, #e8f0fe);
             border-left: 5px solid var(--primary);
@@ -171,20 +171,6 @@
         select:focus, input:focus, textarea:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0, 70, 190, 0.1);
-        }
-
-        .book-box {
-            background: #eef2f7;
-            padding: 1.2rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            text-align: center;
-            display: none;
-        }
-
-        .book-box.active {
-            display: block;
-            animation: fadeIn 0.4s;
         }
 
         .btn {
@@ -297,7 +283,7 @@
 
     <div class="container">
 
-        <!-- APRESENTAÇÃO EM MENSAGEM (Substituindo o vídeo) -->
+        <!-- APRESENTAÇÃO EM MENSAGEM -->
         <div class="card intro-box">
             <h2><i class="fa-solid fa-house-chimney"></i> Vamos realizar o seu sonho da casa própria?</h2>
             <p>Olá, meu nome é <strong>Rikelve</strong>. Sou consultor de vendas.</p>
@@ -319,7 +305,7 @@
 
                 <div class="form-group">
                     <label for="regiao-busca">Digite ou escolha a região/bairro de interesse:</label>
-                    <input type="text" id="regiao-busca" list="regioes-sp" placeholder="Ex: Pompeia, Perdizes, Pinheiros, Osasco..." oninput="verificarRegiao()">
+                    <input type="text" id="regiao-busca" list="regioes-sp" placeholder="Ex: Pompeia, Perdizes, Pinheiros, Osasco...">
                     <datalist id="regioes-sp">
                         <option value="São Paulo - Centro">
                         <option value="São Paulo - Pompeia">
@@ -342,13 +328,6 @@
                         <option value="Diadema">
                     </datalist>
                 </div>
-
-                <div id="book-container" class="book-box">
-                    <p id="book-texto" style="font-weight: 600; margin-bottom: 0.8rem;"></p>
-                    <a id="book-link" href="#" target="_blank" class="btn"><i class="fa-solid fa-file-pdf"></i> Baixar / Ver Book da Região</a>
-                </div>
-
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 1.5rem 0;">
 
                 <div class="form-group">
                     <label for="mcmv">Você já conhece o programa Minha Casa Minha Vida?</label>
@@ -414,7 +393,7 @@
 
         </div>
 
-        <!-- RODAPÉ SOCIAL COM LOGOS REAIS -->
+        <!-- RODAPÉ SOCIAL -->
         <div class="social-footer">
             <a href="https://wa.me/5511954962246" target="_blank" class="social-link wa" title="Falar no WhatsApp">
                 <i class="fa-brands fa-whatsapp"></i>
@@ -431,15 +410,6 @@
     </footer>
 
     <script>
-        const booksRegionais = {
-            "default": "https://seu-link-padrao-books.pdf",
-            "Pompeia": "https://seu-link-book-pompeia.pdf",
-            "Perdizes": "https://seu-link-book-perdizes.pdf",
-            "Pinheiros": "https://seu-link-book-pinheiros.pdf",
-            "Osasco": "https://seu-link-book-osasco.pdf",
-            "Guarulhos": "https://seu-link-book-guarulhos.pdf"
-        };
-
         function mudarFluxo(tipo) {
             const btnComprar = document.getElementById("btn-comprar");
             const btnParceiro = document.getElementById("btn-parceiro");
@@ -456,22 +426,6 @@
                 btnComprar.classList.remove("selected");
                 fluxoParceiro.classList.add("active");
                 fluxoComprar.classList.remove("active");
-            }
-        }
-
-        function verificarRegiao() {
-            const inputVal = document.getElementById("regiao-busca").value.trim();
-            const bookBox = document.getElementById("book-container");
-            const bookTexto = document.getElementById("book-texto");
-            const bookLink = document.getElementById("book-link");
-
-            if (inputVal.length > 2) {
-                bookTexto.innerText = `Book digital exclusivo para a região selecionada.`;
-                let linkPdf = booksRegionais[inputVal] || "https://drive.google.com/drive/folders/seu-link-geral-de-books";
-                bookLink.href = linkPdf;
-                bookBox.classList.add("active");
-            } else {
-                bookBox.classList.remove("active");
             }
         }
 
