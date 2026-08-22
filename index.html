@@ -28,7 +28,51 @@
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
-            padding-bottom: 60px;
+            padding-bottom: 20px;
+            animation: fadeInPage 0.6s ease-out;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast Animation */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notification i {
+            color: var(--primary);
+            font-size: 1.1rem;
+            animation: bounceIcon 0.6s infinite alternate;
+        }
+
+        @keyframes bounceIcon {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
         }
 
         /* Top Admin Bar */
@@ -43,9 +87,15 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             font-size: 0.85rem;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             position: relative;
             z-index: 1000;
+            animation: slideDownBar 0.5s ease;
+        }
+
+        @keyframes slideDownBar {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
         }
 
         .editor-settings-group {
@@ -63,6 +113,24 @@
             border-radius: 6px;
             font-size: 0.8rem;
             outline: none;
+        }
+
+        .editor-days-panel {
+            background: #262626;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+        }
+
+        .editor-days-panel label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
         }
 
         .btn-generate {
@@ -83,7 +151,7 @@
         }
 
         body:not(.editing-mode) .editor-top-bar {
-            display: none;
+            display: none !important;
         }
 
         /* Navbar */
@@ -120,6 +188,13 @@
             background: rgba(255,107,0,0.1);
             border-radius: 50%;
             transition: var(--transition);
+            animation: pulseIcon 3s infinite;
+        }
+
+        @keyframes pulseIcon {
+            0% { box-shadow: 0 0 0 0 rgba(255,107,0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255,107,0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,107,0, 0); }
         }
 
         .brand-icon-wrapper:hover {
@@ -167,9 +242,16 @@
             align-items: center;
             justify-content: center;
             font-size: 0.75rem;
+            animation: popBadge 0.3s ease;
         }
 
-        /* Slideshow / Banner */
+        @keyframes popBadge {
+            0% { transform: scale(0.5); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Slideshow / Banner (Sem texto) */
         .slideshow-container {
             max-width: 600px;
             margin: 1rem auto 0;
@@ -186,6 +268,12 @@
             position: relative;
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             cursor: default;
+            animation: fadeInSlide 0.6s ease;
+        }
+
+        @keyframes fadeInSlide {
+            from { opacity: 0.4; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         body.editing-mode .slide {
@@ -197,18 +285,64 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 1s ease;
         }
 
-        .slide-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-            color: white;
-            padding: 15px 20px 10px;
-            font-weight: 600;
-            font-size: 1rem;
+        .slide:hover img {
+            transform: scale(1.03);
+        }
+
+        /* Status Badge Card */
+        .status-store-card {
+            max-width: 600px;
+            margin: 1rem auto 0;
+            padding: 0 1rem;
+        }
+
+        .status-box {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.open {
+            background: #25d366;
+            box-shadow: 0 0 10px #25d366;
+            animation: blinkDot 2s infinite;
+        }
+
+        .status-dot.closed {
+            background: #ff4d4f;
+        }
+
+        @keyframes blinkDot {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         /* Categories Bar */
@@ -240,6 +374,10 @@
             transition: var(--transition);
         }
 
+        .category-pill-wrapper:hover {
+            transform: translateY(-2px);
+        }
+
         .category-pill {
             background: transparent;
             color: var(--text-muted);
@@ -256,6 +394,12 @@
             background: var(--primary);
             color: var(--white);
             box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+            animation: pulseCategory 0.4s ease;
+        }
+
+        @keyframes pulseCategory {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1); }
         }
 
         .category-pill-wrapper.active .category-pill {
@@ -270,6 +414,11 @@
             cursor: pointer;
             font-size: 0.8rem;
             display: none;
+            transition: var(--transition);
+        }
+
+        .btn-delete-category:hover {
+            transform: scale(1.2);
         }
 
         body.editing-mode .btn-delete-category {
@@ -289,6 +438,11 @@
             transition: var(--transition);
         }
 
+        .btn-add-category:hover, .btn-add-text:hover, .btn-add-product:hover {
+            background: rgba(255,107,0,0.05);
+            transform: translateY(-2px);
+        }
+
         body.editing-mode .btn-add-category, 
         body.editing-mode .btn-add-text,
         body.editing-mode .btn-add-product {
@@ -301,6 +455,7 @@
             padding: 0 1rem;
             display: none;
             gap: 10px;
+            animation: fadeInPage 0.4s ease;
         }
 
         body.editing-mode .admin-action-bar {
@@ -310,6 +465,7 @@
         /* Movable Items */
         .moveable-item {
             position: relative;
+            animation: fadeInPage 0.5s ease;
         }
 
         .move-actions {
@@ -338,11 +494,13 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: var(--transition);
         }
 
         .move-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
+            transform: scale(1.1);
         }
 
         .custom-text-card {
@@ -353,6 +511,11 @@
             border: 1px solid var(--border);
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
             position: relative;
+            transition: var(--transition);
+        }
+
+        .custom-text-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
         }
 
         .custom-text-card .delete-text-btn {
@@ -369,6 +532,11 @@
             display: none;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
+        }
+
+        .custom-text-card .delete-text-btn:hover {
+            transform: scale(1.15);
         }
 
         body.editing-mode .custom-text-card .delete-text-btn {
@@ -391,6 +559,7 @@
             border: 1px solid var(--border);
             position: relative;
             transition: var(--transition);
+            animation: fadeInPage 0.5s ease;
         }
 
         .product-card:hover {
@@ -413,27 +582,28 @@
         }
 
         .product-card.vertical .product-img {
-            transition: transform 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .product-card.vertical:hover .product-img {
-            transform: scale(1.05);
+            transform: scale(1.06);
         }
 
         .product-card.vertical .product-content {
             padding: 1.25rem;
         }
 
-        /* Layout Horizontal */
-        .product-card.horizontal .product-inner-flex {
+        /* Layout Horizontal Corrigido */
+        .product-card.horizontal .product-inner-content {
             display: flex;
             flex-direction: row;
             align-items: stretch;
+            width: 100%;
         }
 
         .product-card.horizontal .product-img-wrapper {
-            width: 120px;
-            min-height: 130px;
+            width: 130px;
+            min-height: 140px;
             position: relative;
             background: #e9ecef;
             flex-shrink: 0;
@@ -445,15 +615,20 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.5s ease;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .product-card.horizontal:hover .product-img {
+            transform: scale(1.06);
         }
 
         .product-card.horizontal .product-content {
             flex: 1;
-            padding: 12px 16px;
+            padding: 14px 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-width: 0;
         }
 
         .product-card.horizontal .product-desc {
@@ -462,7 +637,14 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .product-card.horizontal .product-title {
+            font-size: 1.05rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .product-img {
@@ -526,6 +708,7 @@
             font-size: 0.8rem;
             flex-wrap: wrap;
             gap: 8px;
+            animation: fadeInPage 0.3s ease;
         }
 
         body.editing-mode .card-editor-actions {
@@ -590,6 +773,7 @@
             padding: 8px 12px;
             z-index: 50;
             min-width: 150px;
+            animation: fadeInPage 0.2s ease;
         }
 
         .category-checkboxes label {
@@ -631,8 +815,11 @@
             border-radius: 24px;
             overflow: hidden;
             transform: scale(0.8);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .detail-overlay.open .detail-modal {
@@ -641,8 +828,9 @@
 
         .detail-img-container {
             width: 100%;
-            height: 260px;
+            height: 220px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .detail-img {
@@ -669,21 +857,56 @@
             transition: var(--transition);
         }
 
+        .detail-close:hover {
+            background: rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+
         .detail-body {
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            overflow-y: auto;
         }
 
         .detail-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.4rem;
         }
 
         .detail-desc {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .obs-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .obs-input-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .obs-input {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            background: #fcfcfc;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .obs-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255,107,0,0.1);
+            background: var(--white);
         }
 
         .detail-footer {
@@ -691,7 +914,9 @@
             justify-content: space-between;
             align-items: center;
             border-top: 1px solid var(--border);
-            padding-top: 1.25rem;
+            padding: 1rem 1.5rem;
+            background: var(--white);
+            flex-shrink: 0;
         }
 
         /* Cart Drawer */
@@ -752,6 +977,12 @@
             font-size: 1.2rem;
             cursor: pointer;
             color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .close-cart:hover {
+            transform: scale(1.2);
+            color: var(--text-main);
         }
 
         .cart-item {
@@ -763,6 +994,7 @@
             padding: 12px;
             margin-bottom: 12px;
             border: 1px solid var(--border);
+            animation: fadeInPage 0.3s ease;
         }
 
         .cart-item-info {
@@ -789,6 +1021,13 @@
             color: var(--text-muted);
         }
 
+        .cart-item-obs {
+            font-size: 0.76rem;
+            color: var(--primary);
+            font-style: italic;
+            margin-top: 2px;
+        }
+
         .cart-controls {
             display: flex;
             align-items: center;
@@ -803,6 +1042,12 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .qty-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         .delete-btn {
@@ -811,6 +1056,11 @@
             color: #ff4d4f;
             cursor: pointer;
             padding: 6px;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.2);
         }
 
         .checkout-inputs {
@@ -833,6 +1083,12 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-geo:hover {
+            transform: scale(1.05);
+            background: var(--primary-hover);
         }
 
         .input-field {
@@ -883,12 +1139,27 @@
             transition: var(--transition);
         }
 
-        .editable {
+        .btn-whatsapp-final:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37,211,102,0.4);
+        }
+
+        /* Footer */
+        .footer {
+            max-width: 600px;
+            margin: 2rem auto 0;
+            text-align: center;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 0 1rem;
+        }
+
+        body.editing-mode .editable {
             outline: none !important;
             -webkit-user-modify: read-write-plaintext-only;
         }
         
-        [contenteditable]:focus {
+        body.editing-mode [contenteditable]:focus {
             outline: none !important;
             box-shadow: none !important;
             background-color: rgba(255, 107, 0, 0.05);
@@ -897,6 +1168,12 @@
     </style>
 </head>
 <body class="">
+
+    <!-- TOAST DE NOTIFICAÇÃO -->
+    <div class="toast-notification" id="toastNotification">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Produto adicionado à sacola!</span>
+    </div>
 
     <!-- BARRA SUPERIOR DE EDIÇÃO -->
     
@@ -914,21 +1191,33 @@
         </button>
     </nav>
 
-    <!-- CARROSSEL DE SLIDES -->
+    <!-- CARROSSEL DE SLIDES (SEM TEXTO) -->
     <div class="slideshow-container" id="slideshowContainer">
-        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner" style="display: none;">
+        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner" style="display: block;">
             <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=800">
-            <div class="slide-caption editable" oninput="salvarEstadoLocal()"><i class="fa-solid fa-fire"></i> Combos Especiais da Semana com Frete Grátis!</div>
         </div>
-        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner" style="display: block;">
+        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner" style="display: none;">
             <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800">
-            <div class="slide-caption editable" oninput="salvarEstadoLocal()"><i class="fa-solid fa-utensils"></i> Os melhores Burgers Artesanais da Região!</div>
+        </div>
+    </div>
+
+    <!-- STATUS DA LOJA DINÂMICO -->
+    <div class="status-store-card">
+        <div class="status-box">
+            <div class="status-indicator">
+                <div class="status-dot closed" id="statusDot"></div>
+                <span id="statusTitle">Fechado no Momento</span>
+            </div>
+            <span class="status-text" id="statusDesc">Abre hoje às 11:00</span>
         </div>
     </div>
 
     <!-- CATEGORIAS -->
     <div class="categories-container" id="categoriesContainer">
-        <div class="category-pill-wrapper active" data-cat="Burgers">
+        <div class="category-pill-wrapper active" data-cat="Todos">
+            <button class="category-pill" onclick="filtrarCategoria('Todos', this.parentElement)">Todos</button>
+        </div>
+        <div class="category-pill-wrapper" data-cat="Burgers">
             <button class="category-pill" onclick="filtrarCategoria('Burgers', this.parentElement)">Burgers</button>
             
         </div>
@@ -950,21 +1239,14 @@
     <!-- BARRA DE AÇÕES EXTRAS ADMIN -->
     
 
-    <!-- LISTA DE CONTEÚDOS (TEXTOS E PRODUTOS) -->
+    <!-- LISTA DE CONTEÚDOS -->
     <div class="container" id="menuContainer">
         
-        <!-- Bloco de Texto / Horário -->
-        <div class="custom-text-card moveable-item">
-            
-            
-            <h4 class="editable" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;"><i class="fa-regular fa-clock"></i> Horário de Atendimento</h4>
-            <p class="editable" oninput="salvarEstadoLocal()" style="font-size: 0.9rem; color: var(--text-muted);">Funcionamos de terça a domingo das 18h às 23:59. Peça já o seu!</p>
-        </div>
+        
 
-        <!-- CARD 1 -->
         <div class="product-card moveable-item horizontal" data-categories="[&quot;Burgers&quot;]" style="display: block;">
             
-            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)" style="display: flex; flex-direction: row;">
+            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
                 <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
                     <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
                 </div>
@@ -973,35 +1255,37 @@
                     <p class="product-desc editable" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
                     <div class="product-footer">
                         <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 34,90</span>
-                        <button class="btn-add" onclick="event.stopPropagation(); adicionarAoCarrinho(this)"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                        <button class="btn-add" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))"><i class="fa-solid fa-plus"></i> Adicionar</button>
                     </div>
                 </div>
             </div>
             
         </div>
 
-        <!-- CARD 2 -->
-        <div class="product-card moveable-item horizontal" data-categories="[&quot;Porções&quot;]" style="display: block;">
+    <div class="product-card moveable-item horizontal" data-categories="[&quot;Porções&quot;]" style="display: block;">
             
-            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)" style="display: flex; flex-direction: row;">
+            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
                 <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
-                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=600" class="product-img">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
                 </div>
                 <div class="product-content">
-                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Batata Suprema Cheddar</h3>
-                    <p class="product-desc editable" oninput="salvarEstadoLocal()">Porção generosa de batata frita crocante coberta com cheddar cremoso e bacon em cubos.</p>
+                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
+                    <p class="product-desc editable" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
                     <div class="product-footer">
-                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 28,90</span>
-                        <button class="btn-add" onclick="event.stopPropagation(); adicionarAoCarrinho(this)"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 34,90</span>
+                        <button class="btn-add" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))"><i class="fa-solid fa-plus"></i> Adicionar</button>
                     </div>
                 </div>
             </div>
             
-        </div>
+        </div></div>
 
-    </div>
+    <!-- RODAPÉ COM DIREITOS AUTORAIS EDITÁVEIS -->
+    <footer class="footer">
+        <p class="editable" id="footerText" oninput="salvarEstadoLocal()">© 2026 BurgerCraft. Todos os direitos reservados.</p>
+    </footer>
 
-    <!-- MODAL DE DETALHES DO PRODUTO (MENU DETAILS) -->
+    <!-- MODAL DE DETALHES COM OBSERVAÇÃO -->
     <div class="detail-overlay" id="detailOverlay" onclick="fecharDetalhesProduto()">
         <div class="detail-modal" onclick="event.stopPropagation()">
             <div class="detail-img-container">
@@ -1011,15 +1295,20 @@
             <div class="detail-body">
                 <h3 id="detailTitle" class="detail-title"></h3>
                 <p id="detailDesc" class="detail-desc"></p>
-                <div class="detail-footer">
-                    <span id="detailPrice" class="product-price"></span>
-                    <button class="btn-add" id="detailAddBtn" onclick="adicionarDoDetalhe()"><i class="fa-solid fa-bag-shopping"></i> Adicionar à Sacola</button>
+                
+                <div class="obs-input-group">
+                    <label for="detailObs"><i class="fa-regular fa-pen-to-square"></i> Observação</label>
+                    <input type="text" id="detailObs" class="obs-input" placeholder="Observação">
                 </div>
+            </div>
+            <div class="detail-footer">
+                <span id="detailPrice" class="product-price"></span>
+                <button class="btn-add" onclick="adicionarDoDetalhe()"><i class="fa-solid fa-bag-shopping"></i> Adicionar</button>
             </div>
         </div>
     </div>
 
-    <!-- GAVETA DA SACOLA (MODAL) -->
+    <!-- GAVETA DA SACOLA -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()">
         <div class="cart-drawer" onclick="event.stopPropagation()">
             <div class="cart-header">
@@ -1027,14 +1316,12 @@
                 <button class="close-cart" onclick="toggleCart()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div id="cartItemsList" style="flex: 1; overflow-y: auto;">
-                <!-- Itens -->
-            </div>
+            <div id="cartItemsList" style="flex: 1; overflow-y: auto;"></div>
 
             <div class="checkout-inputs">
                 <input type="text" id="clientName" class="input-field" placeholder="Seu Nome">
                 <div class="address-group">
-                    <input type="text" id="clientAddress" class="input-field" placeholder="Endereço Completo (Rua, Número, Bairro)">
+                    <input type="text" id="clientAddress" class="input-field" placeholder="Rua, Número, Bairro, Cidade">
                     <button class="btn-geo" onclick="obterLocalizacaoAutomatica()" title="Usar minha localização atual"><i class="fa-solid fa-location-crosshairs"></i></button>
                 </div>
                 <select id="paymentMethod" class="input-field">
@@ -1058,31 +1345,44 @@
 
     <script>
         let carrinho = [];
-        let categoriaAtiva = '';
+        let categoriaAtiva = 'Todos';
         let produtoSelecionadoAtual = null;
+        let slideTimer = null;
+        let editorSlideIndex = 0;
 
         window.onload = function() {
             carregarDadosSalvos();
             iniciarSlideshow();
+            verificarStatusFuncionamento();
+            setInterval(verificarStatusFuncionamento, 30000); // Atualiza a cada 30 segundos
+
             let primeiraPill = document.querySelector('.category-pill-wrapper');
             if(primeiraPill) {
-                filtrarCategoria(primeiraPill.getAttribute('data-cat'), primeiraPill);
+                filtrarCategoria('Todos', primeiraPill);
             }
         };
 
         function salvarEstadoLocal() {
+            let diasAtivos = [];
+            document.querySelectorAll('#daysPanel input[type="checkbox"]').forEach(chk => {
+                if(chk.checked) diasAtivos.push(chk.value);
+            });
+
             let dados = {
                 brandTitle: document.getElementById('brandTitle').innerHTML,
                 brandIconHTML: document.getElementById('brandIconWrapper').innerHTML,
                 whatsapp: document.getElementById('whatsappNumber').value,
                 openTime: document.getElementById('openTime').value,
                 closeTime: document.getElementById('closeTime').value,
+                activeDays: diasAtivos,
+                footerText: document.getElementById('footerText').innerHTML,
                 primaryColor: document.documentElement.style.getPropertyValue('--primary') || '#ff6b00',
                 containerHTML: document.getElementById('menuContainer').innerHTML,
                 categoriesHTML: document.getElementById('categoriesContainer').innerHTML,
                 slidesHTML: document.getElementById('slideshowContainer').innerHTML
             };
             localStorage.setItem('burgercraft_data', JSON.stringify(dados));
+            verificarStatusFuncionamento();
         }
 
         function carregarDadosSalvos() {
@@ -1095,11 +1395,48 @@
                 if(dados.whatsapp) document.getElementById('whatsappNumber').value = dados.whatsapp;
                 if(dados.openTime) document.getElementById('openTime').value = dados.openTime;
                 if(dados.closeTime) document.getElementById('closeTime').value = dados.closeTime;
+                if(dados.footerText) document.getElementById('footerText').innerHTML = dados.footerText;
+                if(dados.activeDays && Array.isArray(dados.activeDays)) {
+                    document.querySelectorAll('#daysPanel input[type="checkbox"]').forEach(chk => {
+                        chk.checked = dados.activeDays.includes(chk.value);
+                    });
+                }
                 if(dados.primaryColor) mudarCorPrincipal(dados.primaryColor);
                 if(dados.containerHTML) document.getElementById('menuContainer').innerHTML = dados.containerHTML;
                 if(dados.categoriesHTML) document.getElementById('categoriesContainer').innerHTML = dados.categoriesHTML;
                 if(dados.slidesHTML) document.getElementById('slideshowContainer').innerHTML = dados.slidesHTML;
             } catch(e) {}
+        }
+
+        function verificarStatusFuncionamento() {
+            let openTime = document.getElementById('openTime').value || '18:00';
+            let closeTime = document.getElementById('closeTime').value || '23:59';
+            
+            let diasAtivos = [];
+            document.querySelectorAll('#daysPanel input[type="checkbox"]').forEach(chk => {
+                if(chk.checked) diasAtivos.push(chk.value);
+            });
+
+            let now = new Date();
+            let diaSemanaAtual = String(now.getDay());
+            let horaAtual = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+            let dot = document.getElementById('statusDot');
+            let title = document.getElementById('statusTitle');
+            let desc = document.getElementById('statusDesc');
+
+            let abertoHoje = diasAtivos.includes(diaSemanaAtual);
+            let dentroDoHorario = horaAtual >= openTime && horaAtual <= closeTime;
+
+            if (abertoHoje && dentroDoHorario) {
+                dot.className = "status-dot open";
+                title.innerText = "Aberto Agora";
+                desc.innerText = `Funcionando até às ${closeTime}`;
+            } else {
+                dot.className = "status-dot closed";
+                title.innerText = "Fechado no Momento";
+                desc.innerText = `Abre hoje às ${openTime}`;
+            }
         }
 
         function mudarCorPrincipal(color) {
@@ -1126,7 +1463,7 @@
             salvarEstadoLocal();
         }
 
-        function trocarBanner(slideElem) {
+        function trocarBannerImg(slideElem) {
             if (!document.body.classList.contains('editing-mode')) return;
             let url = prompt("Cole o link da nova imagem para o Banner (URL):");
             if (url) {
@@ -1135,17 +1472,46 @@
             }
         }
 
+        function proximaImagemBanner() {
+            let slides = document.getElementsByClassName("slide");
+            if (slides.length === 0) return;
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            editorSlideIndex = (editorSlideIndex + 1) % slides.length;
+            slides[editorSlideIndex].style.display = "block";
+        }
+
         let slideIndex = 0;
         function iniciarSlideshow() {
             let slides = document.getElementsByClassName("slide");
             if(slides.length === 0) return;
+
+            if (document.body.classList.contains('editing-mode')) {
+                for (let i = 0; i < slides.length; i++) {
+                    slides[i].style.display = (i === 0) ? "block" : "none";
+                }
+                editorSlideIndex = 0;
+                return;
+            }
+
             for (let i = 0; i < slides.length; i++) {
                 slides[i].style.display = "none";  
             }
             slideIndex++;
             if (slideIndex > slides.length) {slideIndex = 1}    
             slides[slideIndex-1].style.display = "block";  
-            setTimeout(iniciarSlideshow, 4000);
+            slideTimer = setTimeout(iniciarSlideshow, 4500);
+        }
+
+        function mostrarToast(nomeProduto) {
+            let toast = document.getElementById('toastNotification');
+            let msg = document.getElementById('toastMsg');
+            msg.innerText = `"${nomeProduto}" adicionado à sacola!`;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         function obterLocalizacaoAutomatica() {
@@ -1163,10 +1529,17 @@
                     let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=pt`);
                     let data = await response.json();
                     if(data && data.address) {
-                        let rua = data.address.road || data.address.suburb || '';
+                        let rua = data.address.road || data.address.pedestrian || data.address.suburb || '';
                         let numero = data.address.house_number ? `, ${data.address.house_number}` : '';
                         let bairro = data.address.suburb || data.address.neighbourhood || '';
-                        let enderecoCompleto = `${rua}${numero} - ${bairro}`;
+                        let cidade = data.address.city || data.address.town || data.address.municipality || '';
+                        
+                        let partes = [];
+                        if(rua) partes.push(rua + numero);
+                        if(bairro) partes.push(bairro);
+                        if(cidade) partes.push(cidade);
+
+                        let enderecoCompleto = partes.join(', ');
                         document.getElementById('clientAddress').value = enderecoCompleto.trim();
                     } else if(data && data.display_name) {
                         document.getElementById('clientAddress').value = data.display_name;
@@ -1181,20 +1554,9 @@
             });
         }
 
-        function verificarHorarioFuncionamento() {
-            let openTime = document.getElementById('openTime') ? document.getElementById('openTime').value : '18:00';
-            let closeTime = document.getElementById('closeTime') ? document.getElementById('closeTime').value : '23:59';
-            let now = new Date();
-            let currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-            if (currentTime < openTime || currentTime > closeTime) {
-                return { aberto: false, openTime, closeTime };
-            }
-            return { aberto: true };
-        }
-
         function trocarLogo() {
             if (!document.body.classList.contains('editing-mode')) return;
-            let escolha = prompt("Digite a URL de uma imagem para o logo OU o nome de um ícone FontAwesome (ex: fa-solid fa-pizza-slice):");
+            let escolha = prompt("Digite a URL de uma imagem para o logo OU o nome de um ícone FontAwesome:");
             if (!escolha) return;
             let wrapper = document.getElementById('brandIconWrapper');
             if (escolha.startsWith('http://') || escolha.startsWith('https://')) {
@@ -1203,15 +1565,6 @@
                 wrapper.innerHTML = `<i class="${escolha} brand-icon" id="brandIcon"></i>`;
             }
             salvarEstadoLocal();
-        }
-
-        function trocarImagem(wrapper) {
-            if (!document.body.classList.contains('editing-mode')) return;
-            let url = prompt("Cole o link da nova imagem do produto (URL):");
-            if (url) {
-                wrapper.querySelector('img').src = url;
-                salvarEstadoLocal();
-            }
         }
 
         function adicionarCategoria() {
@@ -1235,11 +1588,6 @@
         }
 
         function removerCategoria(btn) {
-            let wrappers = document.querySelectorAll('.category-pill-wrapper');
-            if (wrappers.length <= 1) {
-                alert("Você precisa manter pelo menos uma categoria.");
-                return;
-            }
             let wrapper = btn.closest('.category-pill-wrapper');
             let nomeCat = wrapper.getAttribute('data-cat');
 
@@ -1276,7 +1624,10 @@
         function atualizarCheckboxesCategoriasGeral() {
             let wrappers = document.querySelectorAll('.category-pill-wrapper');
             let categorias = [];
-            wrappers.forEach(w => categorias.push(w.getAttribute('data-cat')));
+            wrappers.forEach(w => {
+                let cat = w.getAttribute('data-cat');
+                if(cat !== 'Todos') categorias.push(cat);
+            });
 
             document.querySelectorAll('.product-card').forEach(card => {
                 let container = card.querySelector('.category-checkboxes');
@@ -1302,7 +1653,7 @@
                     <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
                 </div>
                 <button class="delete-text-btn" onclick="this.closest('.custom-text-card').remove(); salvarEstadoLocal();"><i class="fa-solid fa-xmark"></i></button>
-                <h4 class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;">Título Personalizado</h4>
+                <h4 class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;">Observação</h4>
                 <p class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="font-size: 0.9rem; color: var(--text-muted);">Escreva seu texto ou informação aqui...</p>
             `;
             container.prepend(card);
@@ -1311,7 +1662,7 @@
 
         function adicionarNovoCard() {
             let container = document.getElementById('menuContainer');
-            let primeiraCat = document.querySelector('.category-pill-wrapper').getAttribute('data-cat') || 'Burgers';
+            let primeiraCat = 'Burgers';
             
             let card = document.createElement('div');
             card.className = 'product-card vertical moveable-item';
@@ -1321,8 +1672,10 @@
             let checkboxesHTML = '';
             wrappers.forEach(w => {
                 let cat = w.getAttribute('data-cat');
-                let checked = cat === primeiraCat ? 'checked' : '';
-                checkboxesHTML += `<label><input type="checkbox" value="${cat}" ${checked} onchange="atualizarCategoriasCard(this)"> ${cat}</label>`;
+                if(cat !== 'Todos') {
+                    let checked = cat === primeiraCat ? 'checked' : '';
+                    checkboxesHTML += `<label><input type="checkbox" value="${cat}" ${checked} onchange="atualizarCategoriasCard(this)"> ${cat}</label>`;
+                }
             });
 
             card.innerHTML = `
@@ -1339,7 +1692,7 @@
                         <p class="product-desc editable" contenteditable="true" oninput="salvarEstadoLocal()">Descrição deliciosa do seu novo produto...</p>
                         <div class="product-footer">
                             <span class="product-price editable" contenteditable="true" oninput="salvarEstadoLocal()">R$ 25,00</span>
-                            <button class="btn-add" onclick="event.stopPropagation(); adicionarAoCarrinho(this)"><i class="fa-solid fa-plus"></i> Adicionar</button>
+                            <button class="btn-add" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))"><i class="fa-solid fa-plus"></i> Adicionar</button>
                         </div>
                     </div>
                 </div>
@@ -1364,18 +1717,14 @@
         function alternarLayoutCard(btn) {
             let card = btn.closest('.product-card');
             let spanLabel = btn.querySelector('.layout-label');
-            let innerContent = card.querySelector('.product-inner-content');
             
             if (card.classList.contains('vertical')) {
                 card.classList.remove('vertical');
                 card.classList.add('horizontal');
-                innerContent.style.display = 'flex';
-                innerContent.style.flexDirection = 'row';
                 spanLabel.innerText = 'Horizontal';
             } else {
                 card.classList.remove('horizontal');
                 card.classList.add('vertical');
-                innerContent.style.display = 'block';
                 spanLabel.innerText = 'Vertical';
             }
             salvarEstadoLocal();
@@ -1406,7 +1755,7 @@
             let cards = document.querySelectorAll('.product-card');
             cards.forEach(card => {
                 let cats = JSON.parse(card.getAttribute('data-categories') || '[]');
-                if (document.body.classList.contains('editing-mode') || cats.includes(cat)) {
+                if (document.body.classList.contains('editing-mode') || cat === 'Todos' || cats.includes(cat)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -1429,6 +1778,7 @@
             document.getElementById('detailTitle').innerText = nome;
             document.getElementById('detailDesc').innerText = desc;
             document.getElementById('detailPrice').innerText = preco;
+            document.getElementById('detailObs').value = '';
 
             document.getElementById('detailOverlay').classList.add('open');
         }
@@ -1440,41 +1790,31 @@
         function adicionarDoDetalhe() {
             if (!produtoSelecionadoAtual) return;
             let precoNum = parseFloat(produtoSelecionadoAtual.priceText.replace('R$', '').trim().replace(',', '.')) || 0;
+            let obs = document.getElementById('detailObs').value.trim();
 
-            let itemExistente = carrinho.find(item => item.name === produtoSelecionadoAtual.name);
-            if (itemExistente) {
-                itemExistente.qty += 1;
-            } else {
-                carrinho.push({ name: produtoSelecionadoAtual.name, price: precoNum, img: produtoSelecionadoAtual.img, qty: 1 });
-            }
+            carrinho.push({ 
+                name: produtoSelecionadoAtual.name, 
+                price: precoNum, 
+                img: produtoSelecionadoAtual.img, 
+                qty: 1, 
+                obs: obs 
+            });
+
             atualizarCarrinho();
+            mostrarToast(produtoSelecionadoAtual.name);
             fecharDetalhesProduto();
         }
 
-        function adicionarAoCarrinho(btn) {
-            let card = btn.closest('.product-card');
-            let nome = card.querySelector('.product-title').innerText;
-            let precoTexto = card.querySelector('.product-price').innerText.replace('R$', '').trim().replace(',', '.');
-            let preco = parseFloat(precoTexto) || 0;
-            let imagem = card.querySelector('.product-img').src;
-
-            let itemExistente = carrinho.find(item => item.name === nome);
-            if (itemExistente) {
-                itemExistente.qty += 1;
-            } else {
-                carrinho.push({ name: nome, price: preco, img: imagem, qty: 1 });
+        function alterarQtd(index, delta) {
+            carrinho[index].qty += delta;
+            if (carrinho[index].qty <= 0) {
+                carrinho.splice(index, 1);
             }
             atualizarCarrinho();
         }
 
-        function alterarQtd(nome, delta) {
-            let item = carrinho.find(i => i.name === nome);
-            if (item) {
-                item.qty += delta;
-                if (item.qty <= 0) {
-                    carrinho = carrinho.filter(i => i.name !== nome);
-                }
-            }
+        function removerItemCarrinho(index) {
+            carrinho.splice(index, 1);
             atualizarCarrinho();
         }
 
@@ -1485,9 +1825,11 @@
             let listaHTML = '';
             let totalPreco = 0;
 
-            carrinho.forEach(item => {
+            carrinho.forEach((item, index) => {
                 let subtotal = item.price * item.qty;
                 totalPreco += subtotal;
+                let obsHtml = item.obs ? `<div class="cart-item-obs"><i class="fa-regular fa-note-sticky"></i> Obs: ${item.obs}</div>` : '';
+                
                 listaHTML += `
                     <div class="cart-item">
                         <div class="cart-item-info">
@@ -1495,13 +1837,14 @@
                             <div class="cart-item-details">
                                 <h4>${item.name}</h4>
                                 <span>R$ ${item.price.toFixed(2).replace('.', ',')} x ${item.qty}</span>
+                                ${obsHtml}
                             </div>
                         </div>
                         <div class="cart-controls">
-                            <button class="qty-btn" onclick="alterarQtd('${item.name}', -1)">-</button>
+                            <button class="qty-btn" onclick="alterarQtd(${index}, -1)">-</button>
                             <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="alterarQtd('${item.name}', 1)">+</button>
-                            <button class="delete-btn" onclick="alterarQtd('${item.name}', -${item.qty})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="qty-btn" onclick="alterarQtd(${index}, 1)">+</button>
+                            <button class="delete-btn" onclick="removerItemCarrinho(${index})"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1548,6 +1891,9 @@
                 let sub = item.price * item.qty;
                 total += sub;
                 mensagem += `${index + 1}. ${item.qty}x ${item.name} - R$ ${sub.toFixed(2).replace('.', ',')}\n`;
+                if(item.obs) {
+                    mensagem += `   _Obs: ${item.obs}_\n`;
+                }
             });
 
             mensagem += `\n*Total:* R$ ${total.toFixed(2).replace('.', ',')}`;
@@ -1571,9 +1917,13 @@
 
             document.querySelectorAll('.product-card').forEach(c => c.style.display = 'block');
 
+            let slides = document.getElementsByClassName("slide");
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = (i === 0) ? "block" : "none";
+            }
+
             let codigoHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
             
-            // Controle de numeração incremental automática para o arquivo
             let fileCount = parseInt(localStorage.getItem('burgercraft_file_count') || '0');
             let nomeArquivo = fileCount === 0 ? 'cardapio.html' : `cardapio${fileCount}.html`;
             localStorage.setItem('burgercraft_file_count', fileCount + 1);
@@ -1588,10 +1938,9 @@
             document.body.removeChild(link);
             setTimeout(() => URL.revokeObjectURL(url), 100);
 
-            alert(`Arquivo '${nomeArquivo}' baixado com sucesso na sua pasta de Downloads!`);
+            alert(`Arquivo '${nomeArquivo}' baixado com sucesso em modo cliente final!`);
             location.reload();
         }
     </script>
-
 
 </body></html>
