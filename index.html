@@ -18,7 +18,6 @@
         
         .leaflet-control-attribution, .leaflet-control-zoom { display: none !important; }
         .leaflet-routing-container { display: none !important; }
-        .leaflet-marker-icon, .leaflet-marker-shadow { display: none !important; }
 
         #map {
             width: 100%;
@@ -26,34 +25,43 @@
             position: absolute;
             inset: 0;
             z-index: 0;
-            transition: transform 0.2s ease-out;
+        }
+
+        .user-gps-container {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .user-pulse {
-            width: 60px; height: 60px;
-            background: rgba(66, 133, 244, 0.35);
+            width: 56px; height: 56px;
+            background: rgba(37, 99, 235, 0.3);
             border-radius: 50%;
             position: absolute;
             animation: pulse-ring 2s infinite;
-            top: -10px; left: -10px;
         }
+
         .user-dot {
-            width: 40px; height: 40px;
+            width: 36px; height: 36px;
             background: #2563eb;
-            border: 4px solid #ffffff;
+            border: 3px solid #ffffff;
             border-radius: 50%;
             position: absolute;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 16px;
-            transition: transform 0.3s ease;
+            font-size: 14px;
+            transition: transform 0.2s linear;
         }
+
         @keyframes pulse-ring {
-            0% { transform: scale(0.4); opacity: 1; }
-            100% { transform: scale(2.4); opacity: 0; }
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
 
         .panel-slide { transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); }
@@ -91,7 +99,7 @@
 
         <!-- Botão de Centralizar -->
         <div class="pointer-events-auto flex justify-end px-2 mb-[260px]">
-            <button onclick="centerOnUser()" id="centerBtn" class="w-12 h-12 bg-zinc-800 text-blue-400 shadow-2xl rounded-2xl flex items-center justify-center text-xl border border-zinc-700 active:scale-95 transition" title="Centralizar e Alinhamento de Direção">
+            <button onclick="centerOnUser()" id="centerBtn" class="w-12 h-12 bg-zinc-800 text-blue-400 shadow-2xl rounded-2xl flex items-center justify-center text-xl border border-zinc-700 active:scale-95 transition" title="Centralizar GPS">
                 <i class="fa-solid fa-location-crosshairs"></i>
             </button>
         </div>
@@ -118,12 +126,12 @@
 
         <p class="text-xs text-zinc-400 mb-3">Ponto de Interesse • PoleMaps (Brasil)</p>
 
-        <!-- Apenas Modalidade de Bike -->
+        <!-- Veículo: Bicicleta Ajustada -->
         <div id="vehicle-container" class="grid grid-cols-1 gap-1.5 mb-4 bg-zinc-800 p-2 rounded-2xl border border-zinc-700">
             <div class="flex items-center justify-between px-4 py-2 rounded-xl bg-blue-600 text-white">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-bicycle text-xl"></i>
-                    <span class="text-sm font-medium">Bicicleta</span>
+                    <span class="text-sm font-medium">Bicicleta (Ritmo Real)</span>
                 </div>
                 <span class="text-base font-bold" id="timeBike">--</span>
             </div>
@@ -148,7 +156,7 @@
                     <div id="nav-street-name" class="text-sm font-medium text-zinc-300">Siga em frente</div>
                 </div>
             </div>
-            <button onclick="centerOnUser()" class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-lg text-xl pointer-events-auto" title="Realinhar Direção">
+            <button onclick="centerOnUser()" class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-lg text-xl pointer-events-auto" title="Centralizar">
                 <i class="fa-solid fa-compass"></i>
             </button>
         </div>
@@ -183,9 +191,12 @@
         let currentBearing = 0;
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-23.5505, -46.6333], 15);
+            // Posição padrão inicial (São Paulo) caso o GPS demore
+            userLatLng = L.latLng(-23.5505, -46.6333);
+            map = L.map('map', { zoomControl: false, attributionControl: false }).setView(userLatLng, 16);
             setMapTheme(currentTheme);
 
+            updateUserMarker(userLatLng, 0);
             startRealGeolocation();
 
             map.on('click', function(e) {
@@ -288,16 +299,11 @@
                         }
 
                         if (isFollowingUser) {
-                            map.setView(userLatLng, isNavigating ? 19 : 18, { animate: true });
-                            if (isNavigating && currentBearing) {
-                                // Gira o mapa na direção do movimento do usuário
-                                document.getElementById('map').style.transform = `rotate(${-currentBearing}deg)`;
-                            }
+                            map.setView(userLatLng, isNavigating ? 19 : 17, { animate: true });
                         }
                     },
                     (err) => {
-                        userLatLng = L.latLng(-23.5505, -46.6333);
-                        updateUserMarker(userLatLng, 0);
+                        console.warn("Aguardando sinal GPS...");
                     },
                     { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
                 );
@@ -305,22 +311,28 @@
         }
 
         function updateUserMarker(latlng, bearing) {
-            const iconHtml = `<div class="user-pulse"></div><div class="user-dot" style="transform: rotate(${bearing}deg);"><i class="fa-solid fa-bicycle"></i></div>`;
+            const iconHtml = `
+                <div class="user-gps-container">
+                    <div class="user-pulse"></div>
+                    <div class="user-dot" style="transform: rotate(${bearing}deg);">
+                        <i class="fa-solid fa-bicycle"></i>
+                    </div>
+                </div>`;
 
             if (!userMarker) {
                 const icon = L.divIcon({
-                    className: 'user-icon',
+                    className: '',
                     html: iconHtml,
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 20]
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24]
                 });
-                userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 10000 }).addTo(map);
+                userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 999999 }).addTo(map);
             } else {
                 const icon = L.divIcon({
-                    className: 'user-icon',
+                    className: '',
                     html: iconHtml,
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 20]
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24]
                 });
                 userMarker.setIcon(icon);
                 userMarker.setLatLng(latlng);
@@ -329,9 +341,8 @@
 
         function centerOnUser() {
             isFollowingUser = true;
-            document.getElementById('map').style.transform = `rotate(0deg)`;
             if (userLatLng) {
-                map.setView(userLatLng, isNavigating ? 19 : 18, { animate: true });
+                map.setView(userLatLng, isNavigating ? 19 : 17, { animate: true });
             }
         }
 
@@ -389,7 +400,7 @@
             
             if (destinationMarker) map.removeLayer(destinationMarker);
             destinationMarker = L.circleMarker(latlng, {
-                radius: 7,
+                radius: 8,
                 color: '#ffffff',
                 fillColor: '#ea4335',
                 fillOpacity: 1,
@@ -400,7 +411,7 @@
             const sheet = document.getElementById('view-place-sheet');
             sheet.classList.remove('translate-y-[120%]');
             sheet.classList.add('translate-y-0');
-            map.setView(latlng, 17, { animate: true });
+            map.setView(latlng, 16, { animate: true });
             
             calculateBikeTimeAndRoute();
         }
@@ -417,7 +428,7 @@
 
         function formatMinutesToHours(totalMinutes) {
             if (totalMinutes < 60) {
-                return `${totalMinutes} min`;
+                return `${Math.max(1, totalMinutes)} min`;
             }
             const hours = Math.floor(totalMinutes / 60);
             const minutes = Math.round(totalMinutes % 60);
@@ -431,16 +442,16 @@
             if (!userLatLng || !destinationLatLng) return;
 
             try {
-                // Utiliza o perfil OSRM de bicicleta com velocidade média ajustada para ~15 km/h reais
                 const res = await fetch(`https://router.project-osrm.org/route/v1/bike/${userLatLng.lng},${userLatLng.lat};${destinationLatLng.lng},${destinationLatLng.lat}?overview=false`);
                 const data = await res.json();
                 if (data && data.routes && data.routes.length > 0) {
                     const summary = data.routes[0];
-                    const totalMinutes = Math.round((summary.duration / 60) * 1.8);
+                    // Multiplicador aplicado para simular ritmo realista de bicicleta em subidas/trânsito (~15km/h médio)
+                    const totalMinutes = Math.round((summary.duration / 60) * 2.2);
                     document.getElementById('timeBike').innerText = formatMinutesToHours(totalMinutes);
                 }
             } catch(e) {
-                console.error("Erro ao calcular tempo de bike", e);
+                console.error("Erro no cálculo de tempo", e);
             }
         }
 
@@ -465,7 +476,7 @@
                 router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1', profile: 'bike' }),
                 routeWhileDragging: false,
                 show: false,
-                lineOptions: { styles: [{ color: '#4285f4', opacity: 0.9, weight: 7 }] },
+                lineOptions: { styles: [{ color: '#2563eb', opacity: 0.9, weight: 6 }] },
                 fitSelectedRoutes: isPreview
             }).addTo(map);
 
@@ -475,7 +486,8 @@
                 const routes = e.routes;
                 if (routes && routes.length > 0) {
                     const summary = routes[0].summary;
-                    const totalMinutes = Math.round((summary.totalTime / 60) * 1.8);
+                    // Fator de correção de tempo para bicicleta urbana
+                    const totalMinutes = Math.round((summary.totalTime / 60) * 2.2);
                     const totalKm = (summary.totalDistance / 1000).toFixed(1);
 
                     document.getElementById('nav-time').innerText = formatMinutesToHours(totalMinutes);
@@ -493,7 +505,6 @@
         function cancelNavigation() {
             isNavigating = false;
             isFollowingUser = true;
-            document.getElementById('map').style.transform = `rotate(0deg)`;
             document.getElementById('view-navigation').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
             if (routingControl) map.removeControl(routingControl);
