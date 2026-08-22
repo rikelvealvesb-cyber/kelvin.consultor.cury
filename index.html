@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>PoleMaps</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; overflow: hidden; background-color: #121212; user-select: none; }
+        body { font-family: 'Roboto', sans-serif; overflow: hidden; background-color: #121212; user-select: none; position: fixed; inset: 0; }
         
         .leaflet-container { background: #1a1a1a !important; }
         .leaflet-control-attribution, .leaflet-control-zoom { display: none !important; }
@@ -44,17 +44,17 @@
         .panel-slide { transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col relative text-gray-100">
+<body class="h-full w-full flex flex-col relative text-gray-100">
 
     <!-- MAPA -->
     <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
 
     <!-- TELA PRINCIPAL -->
-    <div id="view-home" class="absolute inset-0 z-10 flex flex-col justify-between pointer-events-none p-3 pb-6">
+    <div id="view-home" class="absolute inset-0 z-10 flex flex-col justify-between pointer-events-none p-3 pb-8">
         
         <!-- Barra de Pesquisa com Autocomplete -->
-        <div class="relative pointer-events-auto">
-            <div class="bg-[#2d2d2d] shadow-2xl rounded-full flex items-center px-4 py-2.5 mx-1 mt-2 border border-gray-700/60">
+        <div class="pointer-events-auto">
+            <div class="bg-[#2d2d2d] shadow-2xl rounded-full flex items-center px-4 py-3 mx-1 mt-3 border border-gray-700/60">
                 <button onclick="clearSearch()" class="text-gray-300 mr-3 text-lg hover:text-white transition">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
@@ -66,29 +66,25 @@
                 <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white shadow">US</div>
             </div>
 
-            <!-- Lista de Sugestões de Endereços -->
-            <div id="suggestionsBox" class="absolute left-1 right-1 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-2xl shadow-2xl hidden max-h-60 overflow-y-auto z-30">
-            </div>
+            <div id="suggestionsBox" class="absolute left-4 right-4 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-2xl shadow-2xl hidden max-h-60 overflow-y-auto z-30"></div>
         </div>
 
         <!-- Botão de Centralizar Flutuante -->
-        <div class="pointer-events-auto flex justify-end px-2 mb-2">
+        <div class="pointer-events-auto flex justify-end px-2 mb-6">
             <button onclick="centerOnUser()" class="w-12 h-12 bg-[#2d2d2d] text-blue-400 shadow-2xl rounded-2xl flex items-center justify-center text-xl border border-gray-700 active:scale-95 transition">
                 <i class="fa-solid fa-location-crosshairs"></i>
             </button>
         </div>
     </div>
 
-
-    <!-- OVERLAY DE CARREGAMENTO DA ROTA -->
+    <!-- OVERLAY DE CARREGAMENTO -->
     <div id="loadingOverlay" class="absolute inset-0 bg-black/60 z-50 hidden flex flex-col items-center justify-center backdrop-blur-xs">
         <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
         <p class="text-white font-medium text-sm tracking-wide">Traçando rota...</p>
     </div>
 
-
-    <!-- TELA 2: FICHA DO LOCAL SELECIONADO -->
-    <div id="view-place-sheet" class="absolute inset-x-0 bottom-0 z-20 bg-[#1e1e1e] rounded-t-3xl shadow-2xl p-5 border-t border-gray-700 panel-slide translate-y-full flex flex-col">
+    <!-- TELA 2: FICHA DO LOCAL SELECIONADO (Com Seletor de Veículos e Tempos) -->
+    <div id="view-place-sheet" class="absolute inset-x-0 bottom-0 z-20 bg-[#1e1e1e] rounded-t-3xl shadow-2xl p-5 border-t border-gray-700 panel-slide translate-y-full flex flex-col max-h-[80vh]">
         <div class="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-3"></div>
         
         <div class="flex justify-between items-start mb-2">
@@ -106,9 +102,25 @@
             </button>
         </div>
 
-        <p class="text-xs text-gray-400 mb-4">Ponto de Interesse • PoleMaps</p>
+        <p class="text-xs text-gray-400 mb-3">Ponto de Interesse • PoleMaps</p>
 
-        <div class="grid grid-cols-2 gap-3 mb-4">
+        <!-- Seletor de Veículos e Tempos -->
+        <div class="grid grid-cols-3 gap-2 mb-4 bg-[#2d2d2d] p-2 rounded-2xl border border-gray-700">
+            <button onclick="selectVehicle('car')" id="vehicleCar" class="flex flex-col items-center p-2 rounded-xl bg-blue-600 text-white transition">
+                <i class="fa-solid fa-car text-lg mb-1"></i>
+                <span class="text-xs font-bold" id="timeCar">-- min</span>
+            </button>
+            <button onclick="selectVehicle('bike')" id="vehicleBike" class="flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition">
+                <i class="fa-solid fa-bicycle text-lg mb-1"></i>
+                <span class="text-xs font-bold" id="timeBike">-- min</span>
+            </button>
+            <button onclick="selectVehicle('walk')" id="vehicleWalk" class="flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition">
+                <i class="fa-solid fa-person-walking text-lg mb-1"></i>
+                <span class="text-xs font-bold" id="timeWalk">-- min</span>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-2">
             <button onclick="previewRoute()" class="bg-[#2d2d2d] hover:bg-[#3d3d3d] border border-gray-700 text-blue-400 py-3 px-4 rounded-2xl flex items-center justify-center space-x-2 font-medium text-sm transition">
                 <i class="fa-solid fa-diamond-turn-right text-base"></i>
                 <span>Rotas</span>
@@ -120,9 +132,8 @@
         </div>
     </div>
 
-
     <!-- TELA 3: NAVEGAÇÃO EM ANDAMENTO -->
-    <div id="view-navigation" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 hidden">
+    <div id="view-navigation" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 pb-8 hidden">
         <div class="pointer-events-auto bg-[#0f3833] border border-emerald-700/50 rounded-3xl p-4 shadow-2xl flex items-center justify-between mx-1 mt-2">
             <div class="flex items-center space-x-3">
                 <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-3xl shadow">
@@ -161,10 +172,11 @@
         let routingControl = null;
         let isFollowingUser = true;
         let searchTimeout = null;
+        let currentVehicle = 'car';
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-23.5505, -46.6333], 15);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+            map = L.map('map', { zoomControl: false, attributionControl: false, rotate: true }).setView([-23.5505, -46.6333], 15);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
 
             startRealGeolocation();
 
@@ -179,7 +191,7 @@
                     (position) => {
                         userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
                         updateUserMarker(userLatLng);
-                        if (isFollowingUser && !routingControl) map.setView(userLatLng, 16);
+                        if (isFollowingUser && !routingControl) map.setView(userLatLng, 18);
                     },
                     (err) => {
                         userLatLng = L.latLng(-23.5505, -46.6333);
@@ -206,10 +218,9 @@
 
         function centerOnUser() {
             isFollowingUser = true;
-            if (userLatLng) map.setView(userLatLng, 17, { animate: true });
+            if (userLatLng) map.setView(userLatLng, 19, { animate: true });
         }
 
-        // Sugestões de Endereços em Tempo Real (Autocomplete)
         function handleSearchInput(e) {
             const query = e.target.value;
             clearTimeout(searchTimeout);
@@ -231,7 +242,7 @@
                         data.forEach(item => {
                             const div = document.createElement('div');
                             div.className = "px-4 py-3 hover:bg-[#2d2d2d] border-b border-gray-800 text-sm text-gray-200 cursor-pointer flex items-center space-x-2";
-                            div.innerHTML = `<i class="fa-solid fa-location-dot text-blue-400"></i><span class="truncate">${item.display_name}</span>`;
+                            div.innerHTML = `<i class="fa-solid fa-circle text-blue-400 text-xs mr-1"></i><span class="truncate">${item.display_name}</span>`;
                             div.onclick = () => {
                                 document.getElementById('searchInput').value = item.display_name.split(',')[0];
                                 box.classList.add('hidden');
@@ -261,12 +272,21 @@
         function selectLocation(latlng, name) {
             destinationLatLng = latlng;
             document.getElementById('sheet-title').innerText = name;
+            
+            // Substituir ícone de local por ponto simples (CircleMarker)
             if (destinationMarker) map.removeLayer(destinationMarker);
-            destinationMarker = L.marker(latlng).addTo(map);
+            destinationMarker = L.circleMarker(latlng, {
+                radius: 7,
+                color: '#ffffff',
+                fillColor: '#ea4335',
+                fillOpacity: 1,
+                weight: 2
+            }).addTo(map);
 
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-place-sheet').classList.remove('translate-y-full');
-            map.setView(latlng, 16, { animate: true });
+            map.setView(latlng, 17, { animate: true });
+            estimateTravelTimes();
         }
 
         function closeSheet() {
@@ -275,6 +295,33 @@
             if (destinationMarker) map.removeLayer(destinationMarker);
             if (routingControl) map.removeControl(routingControl);
             routingControl = null;
+        }
+
+        function selectVehicle(vehicle) {
+            currentVehicle = vehicle;
+            ['car', 'bike', 'walk'].forEach(v => {
+                const btn = document.getElementById(`vehicle${v.charAt(0).toUpperCase() + v.slice(1)}`);
+                if (v === vehicle) {
+                    btn.className = "flex flex-col items-center p-2 rounded-xl bg-blue-600 text-white transition";
+                } else {
+                    btn.className = "flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition";
+                }
+            });
+            if (destinationLatLng) calculateRoute(() => {});
+        }
+
+        function estimateTravelTimes() {
+            if (!userLatLng || !destinationLatLng) return;
+            const distMeters = userLatLng.distanceTo(destinationLatLng);
+            
+            // Estimativas básicas
+            const carMin = Math.max(2, Math.round(distMeters / 600));
+            const bikeMin = Math.max(5, Math.round(distMeters / 250));
+            const walkMin = Math.max(10, Math.round(distMeters / 80));
+
+            document.getElementById('timeCar').innerText = `${carMin} min`;
+            document.getElementById('timeBike').innerText = `${bikeMin} min`;
+            document.getElementById('timeWalk').innerText = `${walkMin} min`;
         }
 
         function previewRoute() {
@@ -287,22 +334,23 @@
             calculateRoute(() => {
                 document.getElementById('view-navigation').classList.remove('hidden');
                 isFollowingUser = true;
-                if (userLatLng) map.setView(userLatLng, 18, { animate: true });
+                if (userLatLng) map.setView(userLatLng, 20, { animate: true }); // Zoom máximo
             });
         }
 
-        // Carregamento durante o traçado da rota
         function calculateRoute(onComplete) {
             if (!userLatLng || !destinationLatLng) return;
-
-            // Mostrar tela de carregamento bloqueando interações
             document.getElementById('loadingOverlay').classList.remove('hidden');
 
             if (routingControl) map.removeControl(routingControl);
 
+            let profile = 'car';
+            if (currentVehicle === 'bike') profile = 'bike';
+            if (currentVehicle === 'walk') profile = 'foot';
+
             routingControl = L.Routing.control({
                 waypoints: [userLatLng, destinationLatLng],
-                router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1', profile: 'car' }),
+                router: L.Routing.osrmv1({ serviceUrl: 'https://router.project-osrm.org/route/v1', profile: profile }),
                 routeWhileDragging: false,
                 show: false,
                 lineOptions: { styles: [{ color: '#4285f4', opacity: 0.9, weight: 7 }] },
@@ -310,18 +358,37 @@
             }).addTo(map);
 
             routingControl.on('routesfound', function(e) {
-                // Remover carregamento ao finalizar
                 document.getElementById('loadingOverlay').classList.add('hidden');
+                
+                // Obter direção do primeiro segmento da rota para rotacionar o mapa alinhado à rua
+                const routes = e.routes;
+                if (routes && routes.length > 0 && routes[0].coordinates.length > 1) {
+                    const p1 = routes[0].coordinates[0];
+                    const p2 = routes[0].coordinates[1];
+                    const angle = Math.atan2(p2.lng - p1.lng, p2.lat - p1.lat) * (180 / Math.PI);
+                    
+                    // Rotacionar o mapa suavemente se suportado pelo container
+                    const mapContainerNode = map.getContainer();
+                    if (mapContainerNode) {
+                        mapContainerNode.style.transition = 'transform 0.5s ease';
+                        mapContainerNode.style.transform = `rotate(${-angle}deg)`;
+                    }
+                }
+
                 if (onComplete) onComplete();
             });
 
             routingControl.on('routingerror', function(e) {
                 document.getElementById('loadingOverlay').classList.add('hidden');
-                alert("Não foi possível calcular a rota.");
+                alert("Erro ao traçar a rota.");
             });
         }
 
         function cancelNavigation() {
+            // Resetar rotação do mapa
+            const mapContainerNode = map.getContainer();
+            if (mapContainerNode) mapContainerNode.style.transform = 'rotate(0deg)';
+
             document.getElementById('view-navigation').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
             if (routingControl) map.removeControl(routingControl);
