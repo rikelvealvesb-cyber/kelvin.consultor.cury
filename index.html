@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interativo com Rotas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Navegação Minimalista</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -17,271 +17,280 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .leaflet-routing-container { background-color: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); max-height: 250px; overflow-y: auto; }
+        body { font-family: 'Inter', sans-serif; overflow: hidden; overscroll-behavior: none; }
+        
+        /* Estilo Minimalista do Mapa (CartoDB Positron) */
+        .leaflet-container { background: #f8f9fa; }
+        .leaflet-control-attribution, .leaflet-control-zoom { display: none !important; } /* Esconder controles padrão */
+        
+        /* Esconder o container de rota padrão do LRM */
+        .leaflet-routing-container { display: none !important; }
+
+        /* UI de Navegação (Estilo Google Maps) */
+        #nav-top-card { transition: all 0.4s ease-in-out; }
+        #nav-bottom-card { transition: transform 0.3s ease-out; transform: translateY(100%); }
+        #nav-bottom-card.active { transform: translateY(0); }
+
+        /* Custom User Marker Pulsando */
+        .user-marker-ring {
+            width: 24px; height: 24px;
+            background: rgba(66, 133, 244, 0.2);
+            border-radius: 50%;
+            position: absolute;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        .user-marker-dot {
+            width: 12px; height: 12px;
+            background: #4285f4;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 6px; left: 6px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 0; }
+            80% { transform: scale(0.33); opacity: 0.5; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
     </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
+<body class="bg-gray-100 h-screen flex flex-col relative antialiased">
 
-    <!-- Barra Superior -->
-    <header class="bg-white shadow-md z-20 flex items-center justify-between px-4 py-3 shrink-0">
-        <div class="flex items-center space-x-3 w-full max-w-lg">
-            <div class="flex items-center text-blue-600 font-bold text-xl">
-                <i class="fa-solid fa-map-location-dot mr-2"></i>Mapas
-            </div>
-            <div class="relative flex-1">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="destinationInput" placeholder="Pesquisar destino (ex: Avenida Paulista, SP)..." 
-                    class="w-full pl-10 pr-10 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                <button onclick="searchDestination()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-600 hover:text-blue-800">
-                    <i class="fa-solid fa-arrow-right"></i>
-                </button>
+    <!-- Mapa -->
+    <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
+
+    <!-- UI Superior: Busca e Destino (Cartão Flutuante) -->
+    <div id="nav-top-card" class="absolute top-4 left-4 right-4 md:top-6 md:left-6 md:w-96 z-10 space-y-3">
+        
+        <!-- Campo de Pesquisa Inicial -->
+        <div id="search-box-container" class="bg-white p-2 rounded-2xl shadow-lg flex items-center space-x-3 border border-gray-100">
+            <button class="p-2 text-gray-500"><i class="fa-solid fa-bars"></i></button>
+            <input type="text" id="searchInput" placeholder="Pesquisar destino..." 
+                   class="flex-1 py-1.5 text-gray-800 focus:outline-none text-lg font-medium placeholder:font-normal placeholder:text-gray-400">
+            <div class="flex items-center space-x-1.5 border-l pl-3 border-gray-100">
+                <img src="https://api.dicebear.com/8.x/adventurer/svg?seed=Felix" alt="User" class="w-9 h-9 rounded-full ring-2 ring-gray-100">
             </div>
         </div>
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleSidebar()" class="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full">
-                <i class="fa-solid fa-bars text-lg"></i>
+
+        <!-- Cartão de Rota (Visível apenas quando a rota está ativa) -->
+        <div id="route-active-card" class="bg-white p-4 rounded-2xl shadow-2xl hidden border border-gray-100">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                    <div id="next-turn-icon" class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </div>
+                    <div>
+                        <div id="next-instruction" class="text-3xl font-bold text-gray-900 leading-tight">Vire à direita</div>
+                        <div id="next-street" class="text-lg text-gray-600 font-medium">Rua das Flores</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div id="distance-remaining" class="text-4xl font-extrabold text-blue-600">800 m</div>
+                    <div id="time-arrival" class="text-lg text-gray-500 font-medium mt-0.5">Chegada 14:35</div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100 text-gray-600">
+                <div class="flex items-center space-x-4">
+                   <button onclick="cancelRoute()" class="flex items-center space-x-2 text-lg font-semibold px-4 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-red-600">
+                       <i class="fa-solid fa-xmark"></i> <span>Sair</span>
+                   </button>
+                   <span class="text-lg font-medium">Via Av. Principal</span>
+                </div>
+                <button class="text-blue-600 p-2 text-xl"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Inferior: Botões de Transporte e Centralizar -->
+    <div id="nav-bottom-card" class="absolute bottom-8 right-4 md:right-6 z-10 flex flex-col items-end space-y-4">
+        
+        <!-- Botões de Transporte (Carro, A pé) -->
+        <div id="transport-modes" class="bg-white p-2 rounded-full shadow-xl flex items-center space-x-1.5 border border-gray-100">
+            <button onclick="setProfile('driving')" id="btnDriving" class="w-14 h-14 rounded-full flex items-center justify-center text-blue-600 bg-blue-50 text-2xl transition">
+                <i class="fa-solid fa-car"></i>
             </button>
-            <div class="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold text-sm shadow-sm">
-                EU
-            </div>
+            <button onclick="setProfile('walking')" id="btnWalking" class="w-14 h-14 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 text-2xl transition">
+                <i class="fa-solid fa-person-walking"></i>
+            </button>
         </div>
-    </header>
 
-    <!-- Corpo Principal -->
-    <div class="flex flex-1 relative overflow-hidden">
-
-        <!-- Painel Lateral (Sidebar) -->
-        <aside id="sidebar" class="absolute md:relative z-10 w-full md:w-96 bg-white h-full shadow-lg flex flex-col transition-transform duration-300 transform -translate-x-full md:translate-x-0">
-            <div class="p-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3"><i class="fa-solid fa-diamond-turn-right mr-2 text-blue-600"></i>Navegação em Tempo Real</h2>
-                
-                <div class="space-y-2 relative">
-                    <div class="absolute left-3 top-8 bottom-8 w-0.5 bg-gray-300"></div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-circle-dot text-blue-500 text-xs z-10 pl-1"></i>
-                        <input type="text" id="startLocationText" value="Sua Localização Atual" readonly
-                            class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none">
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-location-dot text-red-500 text-xs z-10 pl-1"></i>
-                        <input type="text" id="endLocationText" placeholder="Digite o destino ou clique no mapa"
-                            class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-                    </div>
-                </div>
-
-                <!-- Modos de Transporte -->
-                <div class="flex justify-around mt-4 py-2 border-t border-b border-gray-100">
-                    <button onclick="setProfile('driving')" id="btnDriving" class="flex flex-col items-center text-blue-600 px-3 py-1 rounded-lg bg-blue-50 font-medium text-xs transition">
-                        <i class="fa-solid fa-car text-base mb-1"></i>Carro
-                    </button>
-                    <button onclick="setProfile('walking')" id="btnWalking" class="flex flex-col items-center text-gray-500 px-3 py-1 rounded-lg hover:bg-gray-100 font-medium text-xs transition">
-                        <i class="fa-solid fa-person-walking text-base mb-1"></i>A pé
-                    </button>
-                    <button onclick="setProfile('bicycling')" id="btnBicycling" class="flex flex-col items-center text-gray-500 px-3 py-1 rounded-lg hover:bg-gray-100 font-medium text-xs transition">
-                        <i class="fa-solid fa-bicycle text-base mb-1"></i>Bicicleta
-                    </button>
-                </div>
-
-                <button onclick="startRouteToDestination()" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition shadow-sm">
-                    Iniciar Rota
-                </button>
-            </div>
-
-            <!-- Detalhes e Status -->
-            <div id="routeInfoPanel" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
-                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600">Status do GPS</span>
-                    <p id="gpsStatusText" class="text-sm font-semibold text-gray-800 mt-1">Buscando sua localização exata...</p>
-                </div>
-
-                <div id="routingInstructionsContainer">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Instruções Passo a Passo</h3>
-                    <p class="text-xs text-gray-500">Insira um destino para visualizar as orientações de trajeto detalhadas.</p>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Área do Mapa Real -->
-        <main class="flex-1 relative bg-slate-100">
-            <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
-
-            <!-- Botão de Centralizar na Localização -->
-            <div class="absolute bottom-6 right-6 z-10">
-                <button onclick="centerOnUser()" class="w-12 h-12 bg-white shadow-xl hover:bg-gray-50 rounded-full flex items-center justify-center text-blue-600 text-lg font-bold transition border border-gray-200" title="Minha Localização">
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                </button>
-            </div>
-        </main>
+        <!-- Botão de Centralizar -->
+        <button onclick="centerOnUser()" class="w-16 h-16 bg-white shadow-xl hover:bg-gray-50 rounded-full flex items-center justify-center text-blue-600 text-3xl transition border border-gray-100" title="Minha Localização">
+            <i class="fa-solid fa-location-arrow"></i>
+        </button>
     </div>
 
     <script>
         let map;
-        let userLat = -23.550520; // Padrão São Paulo caso o GPS demore
-        let userLng = -46.633308;
         let userMarker = null;
         let routingControl = null;
-        let currentTransportProfile = 'driving'; // driving, walking, bicycling
-        let destinationLatLng = null;
+        let currentProfile = 'driving';
+        let userLatLng = null;
+        let destinationMarker = null;
+        let isFollowing = true; // Modo de acompanhamento ativado ao iniciar
 
-        // Ícone personalizado azul para o usuário
-        const blueUserIcon = L.divIcon({
-            className: 'custom-user-marker',
-            html: '<div style="background-color: #2563eb; width: 18px; height: 18px; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>',
-            iconSize: [18, 18],
-            iconAnchor: [9, 9]
-        });
-
-        // Inicializar o Mapa
+        // Inicializar Mapa Minimalista (CartoDB Positron)
         function initMap() {
-            map = L.map('map', { zoomControl: false }).setView([userLat, userLng], 14);
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false,
+                // Desativar interações excessivas no modo navegação
+                boxZoom: false,
+                doubleClickZoom: false,
+                dragging: true, // Necessário para mover
+                tap: true
+            });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
+                // Minimalista, sem labels de países, apenas ruas e água. Idealmente usa-se CartoDB.
+                // Para fins de demonstração e estabilidade, usamos o padrão, mas escondendo UI.
             }).addTo(map);
 
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            startLocationWatch();
 
-            // Obter Geolocalização Real
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(
-                    (position) => {
-                        userLat = position.coords.latitude;
-                        userLng = position.coords.longitude;
-                        updateUserLocationMarker(userLat, userLng);
-                        document.getElementById('gpsStatusText').innerText = "Localização obtida com sucesso.";
-                    },
-                    (error) => {
-                        console.warn("Erro de geolocalização: ", error.message);
-                        document.getElementById('gpsStatusText').innerText = "Usando localização padrão (São Paulo). Ative o GPS.";
-                        updateUserLocationMarker(userLat, userLng);
-                    },
-                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 }
-                );
-            } else {
-                updateUserLocationMarker(userLat, userLng);
-            }
-
-            // Clique no mapa para definir destino
+            // Clicar no mapa define destino e inicia rota
             map.on('click', function(e) {
-                destinationLatLng = e.latlng;
-                document.getElementById('endLocationText').value = `${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}`;
-                startRouteToDestination();
+                setDestination(e.latlng);
             });
         }
 
-        function updateUserLocationMarker(lat, lng) {
-            if (!userMarker) {
-                userMarker = L.marker([lat, lng], { icon: blueUserIcon }).addTo(map).bindPopup("Você está aqui");
+        // Geolocalização contínua e centralização automática inicial
+        function startLocationWatch() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        userLatLng = L.latLng(lat, lng);
+                        updateUserMarker(userLatLng);
+
+                        if (isFollowing) {
+                            map.setView(userLatLng, 17); // Zoom alto e segue usuário
+                        }
+                    },
+                    (err) => console.warn('GPS Error', err),
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
             } else {
-                userMarker.setLatLng([lat, lng]);
+                alert("Geolocalização não suportada.");
+            }
+        }
+
+        // Marcador de usuário personalizado (Ponto + Anel)
+        function updateUserMarker(latlng) {
+            if (!userMarker) {
+                const pulsingIcon = L.divIcon({
+                    className: 'user-marker-icon',
+                    html: '<div class="user-marker-ring"></div><div class="user-marker-dot"></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+                userMarker = L.marker(latlng, { icon: pulsingIcon, zIndexOffset: 1000 }).addTo(map);
+            } else {
+                userMarker.setLatLng(latlng);
             }
         }
 
         function centerOnUser() {
-            if (userLat && userLng) {
-                map.setView([userLat, userLng], 16, { animate: true });
+            isFollowing = true;
+            if (userLatLng) {
+                map.setView(userLatLng, 17, { animate: true });
             }
         }
 
-        // Definir Perfil de Transporte
+        // Selecionar perfil de transporte
         function setProfile(profile) {
-            currentTransportProfile = profile;
-            ['driving', 'walking', 'bicycling'].forEach(p => {
-                const btnId = 'btn' + p.charAt(0).toUpperCase() + p.slice(1);
-                document.getElementById(btnId).className = "flex flex-col items-center text-gray-500 px-3 py-1 rounded-lg hover:bg-gray-100 font-medium text-xs transition";
+            currentProfile = profile;
+            ['driving', 'walking'].forEach(p => {
+                const btn = document.getElementById(`btn${p.charAt(0).toUpperCase() + p.slice(1)}`);
+                btn.className = "w-14 h-14 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 text-2xl transition";
             });
-            const activeId = 'btn' + profile.charAt(0).toUpperCase() + profile.slice(1);
-            document.getElementById(activeId).className = "flex flex-col items-center text-blue-600 px-3 py-1 rounded-lg bg-blue-50 font-medium text-xs transition";
+            const activeBtn = document.getElementById(`btn${profile.charAt(0).toUpperCase() + profile.slice(1)}`);
+            activeBtn.className = "w-14 h-14 rounded-full flex items-center justify-center text-blue-600 bg-blue-50 text-2xl transition";
 
-            if (destinationLatLng) {
-                startRouteToDestination();
+            if (destinationMarker) {
+                calculateAndShowRoute(); // Recalcular se destino já existe
             }
         }
 
-        // Pesquisar Destino usando Nominatim (OpenStreetMap Search)
-        async function searchDestination() {
-            const query = document.getElementById('destinationInput').value;
-            if (!query) return;
-
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    const place = data[0];
-                    destinationLatLng = L.latLng(parseFloat(place.lat), parseFloat(place.lon));
-                    document.getElementById('endLocationText').value = place.display_name.split(',')[0];
-                    startRouteToDestination();
-                } else {
-                    alert("Destino não encontrado.");
-                }
-            } catch (err) {
-                console.error("Erro na busca:", err);
-            }
+        // Iniciar Rota ao clicar no mapa
+        function setDestination(latlng) {
+            if (destinationMarker) map.removeLayer(destinationMarker);
+            destinationMarker = L.circleMarker(latlng, { radius: 8, color: '#fff', fillColor: '#ea4335', fillOpacity: 1, weight: 2 }).addTo(map);
+            
+            // Mudar UI para modo navegação
+            document.getElementById('search-box-container').classList.add('hidden');
+            document.getElementById('nav-top-card').classList.add('active-route');
+            document.getElementById('route-active-card').classList.remove('hidden');
+            document.getElementById('nav-bottom-card').classList.add('active');
+            
+            isFollowing = true; // Iniciar seguindo a rota
+            calculateAndShowRoute();
         }
 
-        // Iniciar Rota com Leaflet Routing Machine
-        function startRouteToDestination() {
-            if (!destinationLatLng) {
-                const textQuery = document.getElementById('endLocationText').value;
-                if (textQuery) {
-                    searchDestination();
-                    return;
-                }
-                return;
-            }
+        // Calcular e exibir a rota usando OSRM
+        function calculateAndShowRoute() {
+            if (!userLatLng || !destinationMarker) return;
 
-            if (routingControl) {
-                map.removeControl(routingControl);
-            }
+            if (routingControl) map.removeControl(routingControl);
 
-            // Mapear perfil para OSRM router
             let routerService = L.Routing.osrmv1({
                 serviceUrl: 'https://router.project-osrm.org/route/v1',
-                profile: currentTransportProfile === 'bicycling' ? 'bike' : (currentTransportProfile === 'walking' ? 'foot' : 'car')
+                profile: currentProfile === 'walking' ? 'foot' : 'car'
             });
 
             routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(userLat, userLng),
-                    destinationLatLng
-                ],
+                waypoints: [userLatLng, destinationMarker.getLatLng()],
                 router: routerService,
                 routeWhileDragging: false,
-                language: 'pt',
+                show: false, // Esconder painel padrão
                 lineOptions: {
-                    styles: [{ color: '#3b82f6', opacity: 0.8, weight: 6 }]
+                    styles: [
+                        { color: '#1a73e8', opacity: 0.8, weight: 8 }, // Borda azul principal
+                        { color: '#fff', opacity: 0.5, weight: 10 } // Efeito de contorno branco (minimalista)
+                    ]
                 },
-                showAlternatives: true,
+                // Ajustar o zoom para focar na rota inteira no início
                 fitSelectedRoutes: true,
-                containerClassName: 'leaflet-routing-container'
             }).addTo(map);
 
-            // Redirecionar container de instruções para o painel lateral
-            setTimeout(() => {
-                const container = document.querySelector('.leaflet-routing-container');
-                if (container) {
-                    const targetContainer = document.getElementById('routingInstructionsContainer');
-                    targetContainer.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Instruções Passo a Passo</h3>';
-                    targetContainer.appendChild(container);
-                }
-            }, 500);
-
-            // Fechar sidebar em mobile após iniciar rota
-            if (window.innerWidth < 768) {
-                document.getElementById('sidebar').classList.add('-translate-x-full');
-            }
+            // Simular dados da próxima instrução (OSRM não expõe isso facilmente em tempo real no client-side sem parsear o objeto inteiro)
+            // Em um app real, você usaria os eventos de 'routesfound' do LRM para extrair os dados.
+            // Aqui vamos apenas atualizar os campos com dados fictícios para demonstrar a UI.
+            updateNavigationInstruction("Vire à esquerda", "Rua Principal", "500 m", "10 min");
         }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
+        // Função para atualizar o cartão de instrução de navegação
+        function updateNavigationInstruction(instruction, street, distance, time) {
+             document.getElementById('next-instruction').innerText = instruction;
+             document.getElementById('next-street').innerText = street;
+             document.getElementById('distance-remaining').innerText = distance;
+             document.getElementById('time-arrival').innerText = `Chegada ${time}`;
+             // Ícone muda dependendo da instrução (simplificado)
+             if(instruction.includes('direita')) document.getElementById('next-turn-icon').innerHTML = '<i class="fa-solid fa-arrow-right"></i>';
+             else if(instruction.includes('esquerda')) document.getElementById('next-turn-icon').innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+             else document.getElementById('next-turn-icon').innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+        }
+
+        function cancelRoute() {
+            if (routingControl) map.removeControl(routingControl);
+            if (destinationMarker) map.removeLayer(destinationMarker);
+            routingControl = null;
+            destinationMarker = null;
+            isFollowing = true;
+
+            // Restaurar UI inicial
+            document.getElementById('search-box-container').classList.remove('hidden');
+            document.getElementById('route-active-card').classList.add('hidden');
+            document.getElementById('nav-bottom-card').classList.remove('active');
+            
+            if (userLatLng) map.setView(userLatLng, 17);
         }
 
         window.onload = initMap;
+
     </script>
 </body>
 </html>
