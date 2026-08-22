@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-BR" style="--primary: #000000; --primary-hover: #000000;"><head>
+<html lang="pt-BR">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BurgerCraft - Cardápio Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -1167,7 +1168,7 @@
         }
     </style>
 </head>
-<body class="">
+<body class="editing-mode">
 
     <!-- TOAST DE NOTIFICAÇÃO -->
     <div class="toast-notification" id="toastNotification">
@@ -1176,7 +1177,27 @@
     </div>
 
     <!-- BARRA SUPERIOR DE EDIÇÃO -->
-    
+    <div class="editor-top-bar" id="editorBar">
+        <div class="editor-settings-group">
+            <span><i class="fa-solid fa-gears"></i> <strong>Painel Admin</strong></span>
+            <label style="font-size: 0.8rem;">Cor: <input type="color" id="primaryColorPicker" value="#ff6b00" onchange="mudarCorPrincipal(this.value)" style="border:none; width:30px; height:24px; cursor:pointer; background:none; vertical-align:middle;"></label>
+            <label style="font-size: 0.8rem;">WhatsApp: <input type="text" id="whatsappNumber" class="editor-input-small" value="5511954962246" style="width: 90px;"></label>
+            <label style="font-size: 0.8rem;">Abre: <input type="time" id="openTime" class="editor-input-small" value="18:00" onchange="salvarEstadoLocal()"></label>
+            <label style="font-size: 0.8rem;">Fecha: <input type="time" id="closeTime" class="editor-input-small" value="23:59" onchange="salvarEstadoLocal()"></label>
+            <button class="editor-input-small" style="background:var(--primary); border:none; cursor:pointer; font-weight:600; padding:5px 10px;" onclick="proximaImagemBanner()"><i class="fa-solid fa-image"></i> Próxima Imagem</button>
+        </div>
+        <div class="editor-days-panel" id="daysPanel">
+            <span>Dias:</span>
+            <label><input type="checkbox" value="0" checked onchange="salvarEstadoLocal()"> Dom</label>
+            <label><input type="checkbox" value="1" onchange="salvarEstadoLocal()"> Seg</label>
+            <label><input type="checkbox" value="2" checked onchange="salvarEstadoLocal()"> Ter</label>
+            <label><input type="checkbox" value="3" checked onchange="salvarEstadoLocal()"> Qua</label>
+            <label><input type="checkbox" value="4" checked onchange="salvarEstadoLocal()"> Qui</label>
+            <label><input type="checkbox" value="5" checked onchange="salvarEstadoLocal()"> Sex</label>
+            <label><input type="checkbox" value="6" checked onchange="salvarEstadoLocal()"> Sáb</label>
+        </div>
+        <button class="btn-generate" onclick="salvarEBaixarHTML()"><i class="fa-solid fa-download"></i> Baixar HTML</button>
+    </div>
 
     <!-- NAVBAR -->
     <nav class="navbar">
@@ -1184,7 +1205,7 @@
             <div class="brand-icon-wrapper" id="brandIconWrapper" onclick="trocarLogo()" title="Alterar Logo">
                 <i class="fa-solid fa-burger brand-icon" id="brandIcon"></i>
             </div>
-            <span class="editable" id="brandTitle" oninput="salvarEstadoLocal()">BurgerCraft</span>
+            <span class="editable" contenteditable="true" id="brandTitle" oninput="salvarEstadoLocal()">BurgerCraft</span>
         </div>
         <button class="bag-btn" onclick="toggleCart()">
             <i class="fa-solid fa-bag-shopping"></i> Sacola <span class="bag-badge" id="cartCount">0</span>
@@ -1193,10 +1214,10 @@
 
     <!-- CARROSSEL DE SLIDES (SEM TEXTO) -->
     <div class="slideshow-container" id="slideshowContainer">
-        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner" style="display: block;">
+        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner">
             <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=800">
         </div>
-        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner" style="display: none;">
+        <div class="slide fade" onclick="trocarBannerImg(this)" title="Alterar Imagem do Banner">
             <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800">
         </div>
     </div>
@@ -1205,10 +1226,10 @@
     <div class="status-store-card">
         <div class="status-box">
             <div class="status-indicator">
-                <div class="status-dot closed" id="statusDot"></div>
-                <span id="statusTitle">Fechado no Momento</span>
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusTitle">Verificando...</span>
             </div>
-            <span class="status-text" id="statusDesc">Abre hoje às 11:00</span>
+            <span class="status-text" id="statusDesc">...</span>
         </div>
     </div>
 
@@ -1219,70 +1240,83 @@
         </div>
         <div class="category-pill-wrapper" data-cat="Burgers">
             <button class="category-pill" onclick="filtrarCategoria('Burgers', this.parentElement)">Burgers</button>
-            
+            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="category-pill-wrapper" data-cat="Porções">
             <button class="category-pill" onclick="filtrarCategoria('Porções', this.parentElement)">Porções</button>
-            
+            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="category-pill-wrapper" data-cat="Bebidas">
             <button class="category-pill" onclick="filtrarCategoria('Bebidas', this.parentElement)">Bebidas</button>
-            
+            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="category-pill-wrapper" data-cat="Sobremesas">
             <button class="category-pill" onclick="filtrarCategoria('Sobremesas', this.parentElement)">Sobremesas</button>
-            
+            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        
+        <button class="btn-add-category" onclick="adicionarCategoria()"><i class="fa-solid fa-plus"></i> Categoria</button>
     </div>
 
     <!-- BARRA DE AÇÕES EXTRAS ADMIN -->
-    
+    <div class="admin-action-bar">
+        <button class="btn-add-text" onclick="adicionarTextoCustomizado()"><i class="fa-solid fa-plus"></i> Adicionar Texto</button>
+        <button class="btn-add-product" onclick="adicionarNovoCard()"><i class="fa-solid fa-plus"></i> Adicionar Produto</button>
+    </div>
 
     <!-- LISTA DE CONTEÚDOS -->
     <div class="container" id="menuContainer">
         
-        
-
-        <div class="product-card moveable-item horizontal" data-categories="[&quot;Burgers&quot;]" style="display: block;">
-            
-            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
-                <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
-                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
-                </div>
-                <div class="product-content">
-                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
-                    <p class="product-desc editable" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
-                    <div class="product-footer">
-                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 34,90</span>
-                        <button class="btn-add" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))"><i class="fa-solid fa-plus"></i> Adicionar</button>
-                    </div>
-                </div>
+        <div class="custom-text-card moveable-item">
+            <div class="move-actions">
+                <button class="move-btn" onclick="moverItem(this, 'cima')" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
+                <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
             </div>
-            
+            <button class="delete-text-btn" onclick="this.closest('.custom-text-card').remove(); salvarEstadoLocal();"><i class="fa-solid fa-xmark"></i></button>
+            <h4 class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;"><i class="fa-regular fa-clock"></i> Observação</h4>
+            <p class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="font-size: 0.9rem; color: var(--text-muted);">Peça já o seu lanche favorito com entrega rápida!</p>
         </div>
 
-    <div class="product-card moveable-item horizontal" data-categories="[&quot;Porções&quot;]" style="display: block;">
-            
+        <div class="product-card vertical moveable-item" data-categories='["Burgers"]'>
+            <div class="move-actions">
+                <button class="move-btn" onclick="moverItem(this, 'cima')" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
+                <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
+            </div>
             <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
                 <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
                     <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
                 </div>
                 <div class="product-content">
-                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
-                    <p class="product-desc editable" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
+                    <h3 class="product-title editable" contenteditable="true" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
+                    <p class="product-desc editable" contenteditable="true" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
                     <div class="product-footer">
-                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 34,90</span>
+                        <span class="product-price editable" contenteditable="true" oninput="salvarEstadoLocal()">R$ 34,90</span>
                         <button class="btn-add" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))"><i class="fa-solid fa-plus"></i> Adicionar</button>
                     </div>
                 </div>
             </div>
-            
-        </div></div>
+            <div class="card-editor-actions">
+                <div class="category-dropdown-container">
+                    <div class="category-select-btn" onclick="toggleDropdown(this)"><i class="fa-solid fa-tags"></i> Categorias <i class="fa-solid fa-chevron-down"></i></div>
+                    <div class="category-checkboxes">
+                        <label><input type="checkbox" value="Burgers" checked onchange="atualizarCategoriasCard(this)"> Burgers</label>
+                        <label><input type="checkbox" value="Porções" onchange="atualizarCategoriasCard(this)"> Porções</label>
+                        <label><input type="checkbox" value="Bebidas" onchange="atualizarCategoriasCard(this)"> Bebidas</label>
+                        <label><input type="checkbox" value="Sobremesas" onchange="atualizarCategoriasCard(this)"> Sobremesas</label>
+                    </div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="card-action-btn" onclick="alternarLayoutCard(this)">Layout: <span class="layout-label">Vertical</span></button>
+                    <button class="card-action-btn" onclick="duplicarCard(this)">Copiar</button>
+                    <button class="card-action-btn delete" onclick="removerCard(this)">Excluir</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <!-- RODAPÉ COM DIREITOS AUTORAIS EDITÁVEIS -->
     <footer class="footer">
-        <p class="editable" id="footerText" oninput="salvarEstadoLocal()">© 2026 BurgerCraft. Todos os direitos reservados.</p>
+        <p class="editable" contenteditable="true" id="footerText" oninput="salvarEstadoLocal()">&copy; 2026 BurgerCraft. Todos os direitos reservados.</p>
     </footer>
 
     <!-- MODAL DE DETALHES COM OBSERVAÇÃO -->
@@ -1326,8 +1360,8 @@
                 </div>
                 <select id="paymentMethod" class="input-field">
                     <option value="Pix">Pix</option>
-                    <option value="Cartão de Crédito">Cartão de Crédito</option>
                     <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão de Crédito/Débito">Cartão de Crédito/Débito</option>
                 </select>
             </div>
 
@@ -1354,12 +1388,23 @@
             carregarDadosSalvos();
             iniciarSlideshow();
             verificarStatusFuncionamento();
-            setInterval(verificarStatusFuncionamento, 30000); // Atualiza a cada 30 segundos
+            setInterval(verificarStatusFuncionamento, 30000);
 
             let primeiraPill = document.querySelector('.category-pill-wrapper');
             if(primeiraPill) {
                 filtrarCategoria('Todos', primeiraPill);
             }
+
+            // Gerenciar botão "Voltar" do navegador para fechar modais/sacola
+            window.addEventListener('popstate', function(event) {
+                let detailOverlay = document.getElementById('detailOverlay');
+                let cartOverlay = document.getElementById('cartOverlay');
+                if (detailOverlay.classList.contains('open')) {
+                    detailOverlay.classList.remove('open');
+                } else if (cartOverlay.classList.contains('open')) {
+                    cartOverlay.classList.remove('open');
+                }
+            });
         };
 
         function salvarEstadoLocal() {
@@ -1431,7 +1476,7 @@
             if (abertoHoje && dentroDoHorario) {
                 dot.className = "status-dot open";
                 title.innerText = "Aberto Agora";
-                desc.innerText = `Funcionando até às ${closeTime}`;
+                desc.innerText = `Fecha às ${closeTime}`;
             } else {
                 dot.className = "status-dot closed";
                 title.innerText = "Fechado no Momento";
@@ -1781,10 +1826,17 @@
             document.getElementById('detailObs').value = '';
 
             document.getElementById('detailOverlay').classList.add('open');
+            history.pushState({ modal: 'detail' }, '');
         }
 
         function fecharDetalhesProduto() {
-            document.getElementById('detailOverlay').classList.remove('open');
+            let overlay = document.getElementById('detailOverlay');
+            if (overlay.classList.contains('open')) {
+                overlay.classList.remove('open');
+                if (history.state && history.state.modal === 'detail') {
+                    history.back();
+                }
+            }
         }
 
         function adicionarDoDetalhe() {
@@ -1861,6 +1913,13 @@
         function toggleCart() {
             let overlay = document.getElementById('cartOverlay');
             overlay.classList.toggle('open');
+            if (overlay.classList.contains('open')) {
+                history.pushState({ modal: 'cart' }, '');
+            } else {
+                if (history.state && history.state.modal === 'cart') {
+                    history.back();
+                }
+            }
         }
 
         function finalizarWhatsApp() {
@@ -1942,5 +2001,5 @@
             location.reload();
         }
     </script>
-
-</body></html>
+</body>
+</html>
