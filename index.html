@@ -1,11 +1,9 @@
-```html
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR" style="--primary: #000000; --primary-hover: #000000;"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BurgerCraft - Cardápio Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -309,7 +307,7 @@
             display: flex;
         }
 
-        /* Custom Text Blocks & Movable Cards */
+        /* Movable Items */
         .moveable-item {
             position: relative;
         }
@@ -898,19 +896,10 @@
         }
     </style>
 </head>
-<body class="editing-mode">
+<body class="">
 
     <!-- BARRA SUPERIOR DE EDIÇÃO -->
-    <div class="editor-top-bar" id="editorBar">
-        <div class="editor-settings-group">
-            <span><i class="fa-solid fa-gears"></i> <strong>Painel Admin</strong></span>
-            <label style="font-size: 0.8rem;">Cor: <input type="color" id="primaryColorPicker" value="#ff6b00" onchange="mudarCorPrincipal(this.value)" style="border:none; width:30px; height:24px; cursor:pointer; background:none; vertical-align:middle;"></label>
-            <label style="font-size: 0.8rem;">WhatsApp: <input type="text" id="whatsappNumber" class="editor-input-small" value="5511954962246" style="width: 100px;"></label>
-            <label style="font-size: 0.8rem;">Abre: <input type="time" id="openTime" class="editor-input-small" value="18:00"></label>
-            <label style="font-size: 0.8rem;">Fecha: <input type="time" id="closeTime" class="editor-input-small" value="23:59"></label>
-        </div>
-        <button class="btn-generate" onclick="salvarEBaixarHTML()"><i class="fa-solid fa-download"></i> Baixar HTML Pronto</button>
-    </div>
+    
 
     <!-- NAVBAR -->
     <nav class="navbar">
@@ -918,7 +907,7 @@
             <div class="brand-icon-wrapper" id="brandIconWrapper" onclick="trocarLogo()" title="Alterar Logo">
                 <i class="fa-solid fa-burger brand-icon" id="brandIcon"></i>
             </div>
-            <span class="editable" contenteditable="true" id="brandTitle" oninput="salvarEstadoLocal()">BurgerCraft</span>
+            <span class="editable" id="brandTitle" oninput="salvarEstadoLocal()">BurgerCraft</span>
         </div>
         <button class="bag-btn" onclick="toggleCart()">
             <i class="fa-solid fa-bag-shopping"></i> Sacola <span class="bag-badge" id="cartCount">0</span>
@@ -927,13 +916,13 @@
 
     <!-- CARROSSEL DE SLIDES -->
     <div class="slideshow-container" id="slideshowContainer">
-        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner">
+        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner" style="display: none;">
             <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=800">
-            <div class="slide-caption editable" contenteditable="true" oninput="salvarEstadoLocal()"><i class="fa-solid fa-fire"></i> Combos Especiais da Semana com Frete Grátis!</div>
+            <div class="slide-caption editable" oninput="salvarEstadoLocal()"><i class="fa-solid fa-fire"></i> Combos Especiais da Semana com Frete Grátis!</div>
         </div>
-        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner">
+        <div class="slide fade" onclick="trocarBanner(this)" title="Alterar Imagem do Banner" style="display: block;">
             <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800">
-            <div class="slide-caption editable" contenteditable="true" oninput="salvarEstadoLocal()"><i class="fa-solid fa-utensils"></i> Os melhores Burgers Artesanais da Região!</div>
+            <div class="slide-caption editable" oninput="salvarEstadoLocal()"><i class="fa-solid fa-utensils"></i> Os melhores Burgers Artesanais da Região!</div>
         </div>
     </div>
 
@@ -941,115 +930,73 @@
     <div class="categories-container" id="categoriesContainer">
         <div class="category-pill-wrapper active" data-cat="Burgers">
             <button class="category-pill" onclick="filtrarCategoria('Burgers', this.parentElement)">Burgers</button>
-            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
+            
         </div>
         <div class="category-pill-wrapper" data-cat="Porções">
             <button class="category-pill" onclick="filtrarCategoria('Porções', this.parentElement)">Porções</button>
-            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
+            
         </div>
         <div class="category-pill-wrapper" data-cat="Bebidas">
             <button class="category-pill" onclick="filtrarCategoria('Bebidas', this.parentElement)">Bebidas</button>
-            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
+            
         </div>
         <div class="category-pill-wrapper" data-cat="Sobremesas">
             <button class="category-pill" onclick="filtrarCategoria('Sobremesas', this.parentElement)">Sobremesas</button>
-            <button class="btn-delete-category" onclick="removerCategoria(this)" title="Excluir Categoria"><i class="fa-solid fa-xmark"></i></button>
+            
         </div>
-        <button class="btn-add-category" onclick="adicionarCategoria()"><i class="fa-solid fa-plus"></i> Categoria</button>
+        
     </div>
 
     <!-- BARRA DE AÇÕES EXTRAS ADMIN -->
-    <div class="admin-action-bar">
-        <button class="btn-add-text" onclick="adicionarTextoCustomizado()"><i class="fa-solid fa-plus"></i> Adicionar Texto</button>
-        <button class="btn-add-product" onclick="adicionarNovoCard()"><i class="fa-solid fa-plus"></i> Adicionar Produto</button>
-    </div>
+    
 
     <!-- LISTA DE CONTEÚDOS (TEXTOS E PRODUTOS) -->
     <div class="container" id="menuContainer">
         
-        <!-- Bloco de Texto Exemplo / Horário -->
+        <!-- Bloco de Texto / Horário -->
         <div class="custom-text-card moveable-item">
-            <div class="move-actions">
-                <button class="move-btn" onclick="moverItem(this, 'cima')" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
-                <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-            <button class="delete-text-btn" onclick="this.closest('.custom-text-card').remove(); salvarEstadoLocal();"><i class="fa-solid fa-xmark"></i></button>
-            <h4 class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;"><i class="fa-regular fa-clock"></i> Horário de Atendimento</h4>
-            <p class="editable" contenteditable="true" oninput="salvarEstadoLocal()" style="font-size: 0.9rem; color: var(--text-muted);">Funcionamos de terça a domingo das 18h às 23:59. Peça já o seu!</p>
+            
+            
+            <h4 class="editable" oninput="salvarEstadoLocal()" style="margin-bottom: 6px; font-weight:700;"><i class="fa-regular fa-clock"></i> Horário de Atendimento</h4>
+            <p class="editable" oninput="salvarEstadoLocal()" style="font-size: 0.9rem; color: var(--text-muted);">Funcionamos de terça a domingo das 18h às 23:59. Peça já o seu!</p>
         </div>
 
         <!-- CARD 1 -->
-        <div class="product-card vertical moveable-item" data-categories='["Burgers"]'>
-            <div class="move-actions">
-                <button class="move-btn" onclick="moverItem(this, 'cima')" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
-                <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
-                <div class="product-img-wrapper" onclick="event.stopPropagation(); trocarImagem(this)" title="Alterar foto">
+        <div class="product-card moveable-item horizontal" data-categories="[&quot;Burgers&quot;]" style="display: block;">
+            
+            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)" style="display: flex; flex-direction: row;">
+                <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
                     <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
                 </div>
                 <div class="product-content">
-                    <h3 class="product-title editable" contenteditable="true" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
-                    <p class="product-desc editable" contenteditable="true" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
+                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Mega Smash Bacon</h3>
+                    <p class="product-desc editable" oninput="salvarEstadoLocal()">2x Carnes 90g, duplo cheddar cremoso, bacon crocante e molho da casa no pão brioche.</p>
                     <div class="product-footer">
-                        <span class="product-price editable" contenteditable="true" oninput="salvarEstadoLocal()">R$ 34,90</span>
+                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 34,90</span>
                         <button class="btn-add" onclick="event.stopPropagation(); adicionarAoCarrinho(this)"><i class="fa-solid fa-plus"></i> Adicionar</button>
                     </div>
                 </div>
             </div>
-            <div class="card-editor-actions">
-                <div class="category-dropdown-container">
-                    <div class="category-select-btn" onclick="toggleDropdown(this)"><i class="fa-solid fa-tags"></i> Categorias <i class="fa-solid fa-chevron-down"></i></div>
-                    <div class="category-checkboxes">
-                        <label><input type="checkbox" value="Burgers" checked onchange="atualizarCategoriasCard(this)"> Burgers</label>
-                        <label><input type="checkbox" value="Porções" onchange="atualizarCategoriasCard(this)"> Porções</label>
-                        <label><input type="checkbox" value="Bebidas" onchange="atualizarCategoriasCard(this)"> Bebidas</label>
-                        <label><input type="checkbox" value="Sobremesas" onchange="atualizarCategoriasCard(this)"> Sobremesas</label>
-                    </div>
-                </div>
-                <div style="display:flex; gap:6px;">
-                    <button class="card-action-btn" onclick="alternarLayoutCard(this)">Layout: <span class="layout-label">Vertical</span></button>
-                    <button class="card-action-btn" onclick="duplicarCard(this)">Copiar</button>
-                    <button class="card-action-btn delete" onclick="removerCard(this)">Excluir</button>
-                </div>
-            </div>
+            
         </div>
 
         <!-- CARD 2 -->
-        <div class="product-card vertical moveable-item" data-categories='["Porções"]'>
-            <div class="move-actions">
-                <button class="move-btn" onclick="moverItem(this, 'cima')" title="Mover para cima"><i class="fa-solid fa-arrow-up"></i></button>
-                <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
-            </div>
-            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
-                <div class="product-img-wrapper" onclick="event.stopPropagation(); trocarImagem(this)" title="Alterar foto">
+        <div class="product-card moveable-item horizontal" data-categories="[&quot;Porções&quot;]" style="display: block;">
+            
+            <div class="product-inner-content" onclick="abrirDetalhesProduto(this)" style="display: flex; flex-direction: row;">
+                <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
                     <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=600" class="product-img">
                 </div>
                 <div class="product-content">
-                    <h3 class="product-title editable" contenteditable="true" oninput="salvarEstadoLocal()">Batata Suprema Cheddar</h3>
-                    <p class="product-desc editable" contenteditable="true" oninput="salvarEstadoLocal()">Porção generosa de batata frita crocante coberta com cheddar cremoso e bacon em cubos.</p>
+                    <h3 class="product-title editable" oninput="salvarEstadoLocal()">Batata Suprema Cheddar</h3>
+                    <p class="product-desc editable" oninput="salvarEstadoLocal()">Porção generosa de batata frita crocante coberta com cheddar cremoso e bacon em cubos.</p>
                     <div class="product-footer">
-                        <span class="product-price editable" contenteditable="true" oninput="salvarEstadoLocal()">R$ 28,90</span>
+                        <span class="product-price editable" oninput="salvarEstadoLocal()">R$ 28,90</span>
                         <button class="btn-add" onclick="event.stopPropagation(); adicionarAoCarrinho(this)"><i class="fa-solid fa-plus"></i> Adicionar</button>
                     </div>
                 </div>
             </div>
-            <div class="card-editor-actions">
-                <div class="category-dropdown-container">
-                    <div class="category-select-btn" onclick="toggleDropdown(this)"><i class="fa-solid fa-tags"></i> Categorias <i class="fa-solid fa-chevron-down"></i></div>
-                    <div class="category-checkboxes">
-                        <label><input type="checkbox" value="Burgers" onchange="atualizarCategoriasCard(this)"> Burgers</label>
-                        <label><input type="checkbox" value="Porções" checked onchange="atualizarCategoriasCard(this)"> Porções</label>
-                        <label><input type="checkbox" value="Bebidas" onchange="atualizarCategoriasCard(this)"> Bebidas</label>
-                        <label><input type="checkbox" value="Sobremesas" onchange="atualizarCategoriasCard(this)"> Sobremesas</label>
-                    </div>
-                </div>
-                <div style="display:flex; gap:6px;">
-                    <button class="card-action-btn" onclick="alternarLayoutCard(this)">Layout: <span class="layout-label">Vertical</span></button>
-                    <button class="card-action-btn" onclick="duplicarCard(this)">Copiar</button>
-                    <button class="card-action-btn delete" onclick="removerCard(this)">Excluir</button>
-                </div>
-            </div>
+            
         </div>
 
     </div>
@@ -1087,7 +1034,7 @@
             <div class="checkout-inputs">
                 <input type="text" id="clientName" class="input-field" placeholder="Seu Nome">
                 <div class="address-group">
-                    <input type="text" id="clientAddress" class="input-field" placeholder="Endereço de Entrega (Rua, Número)">
+                    <input type="text" id="clientAddress" class="input-field" placeholder="Endereço Completo (Rua, Número, Bairro)">
                     <button class="btn-geo" onclick="obterLocalizacaoAutomatica()" title="Usar minha localização atual"><i class="fa-solid fa-location-crosshairs"></i></button>
                 </div>
                 <select id="paymentMethod" class="input-field">
@@ -1117,7 +1064,6 @@
         window.onload = function() {
             carregarDadosSalvos();
             iniciarSlideshow();
-            // Define a primeira categoria ativa por padrão
             let primeiraPill = document.querySelector('.category-pill-wrapper');
             if(primeiraPill) {
                 filtrarCategoria(primeiraPill.getAttribute('data-cat'), primeiraPill);
@@ -1170,7 +1116,6 @@
             );
         }
 
-        // Mover itens para cima ou para baixo
         function moverItem(btn, direcao) {
             let item = btn.closest('.moveable-item');
             if (direcao === 'cima' && item.previousElementSibling) {
@@ -1181,7 +1126,6 @@
             salvarEstadoLocal();
         }
 
-        // Alterar imagem do Banner
         function trocarBanner(slideElem) {
             if (!document.body.classList.contains('editing-mode')) return;
             let url = prompt("Cole o link da nova imagem para o Banner (URL):");
@@ -1191,7 +1135,6 @@
             }
         }
 
-        // Slideshow Automático
         let slideIndex = 0;
         function iniciarSlideshow() {
             let slides = document.getElementsByClassName("slide");
@@ -1205,7 +1148,6 @@
             setTimeout(iniciarSlideshow, 4000);
         }
 
-        // Geolocalização
         function obterLocalizacaoAutomatica() {
             if (!navigator.geolocation) {
                 alert("Seu navegador não suporta geolocalização.");
@@ -1220,10 +1162,14 @@
                 try {
                     let response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=pt`);
                     let data = await response.json();
-                    if(data && data.display_name) {
+                    if(data && data.address) {
+                        let rua = data.address.road || data.address.suburb || '';
+                        let numero = data.address.house_number ? `, ${data.address.house_number}` : '';
+                        let bairro = data.address.suburb || data.address.neighbourhood || '';
+                        let enderecoCompleto = `${rua}${numero} - ${bairro}`;
+                        document.getElementById('clientAddress').value = enderecoCompleto.trim();
+                    } else if(data && data.display_name) {
                         document.getElementById('clientAddress').value = data.display_name;
-                    } else {
-                        document.getElementById('clientAddress').value = `Lat: ${lat}, Lon: ${lon}`;
                     }
                 } catch(e) {
                     document.getElementById('clientAddress').value = `Lat: ${lat}, Lon: ${lon}`;
@@ -1236,8 +1182,8 @@
         }
 
         function verificarHorarioFuncionamento() {
-            let openTime = document.getElementById('openTime').value || '18:00';
-            let closeTime = document.getElementById('closeTime').value || '23:59';
+            let openTime = document.getElementById('openTime') ? document.getElementById('openTime').value : '18:00';
+            let closeTime = document.getElementById('closeTime') ? document.getElementById('closeTime').value : '23:59';
             let now = new Date();
             let currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             if (currentTime < openTime || currentTime > closeTime) {
@@ -1309,7 +1255,6 @@
             checkboxes.style.display = checkboxes.style.display === 'block' ? 'none' : 'block';
         }
 
-        // Fecha dropdown ao clicar fora
         window.onclick = function(event) {
             if (!event.target.matches('.category-select-btn') && !event.target.closest('.category-checkboxes')) {
                 document.querySelectorAll('.category-checkboxes').forEach(cb => cb.style.display = 'none');
@@ -1325,7 +1270,6 @@
             });
             card.setAttribute('data-categories', JSON.stringify(cats));
             salvarEstadoLocal();
-            // Re-aplica filtro atual
             if(categoriaAtiva) filtrarCategoria(categoriaAtiva, document.querySelector(`.category-pill-wrapper[data-cat="${categoriaAtiva}"]`));
         }
 
@@ -1387,7 +1331,7 @@
                     <button class="move-btn" onclick="moverItem(this, 'baixo')" title="Mover para baixo"><i class="fa-solid fa-arrow-down"></i></button>
                 </div>
                 <div class="product-inner-content" onclick="abrirDetalhesProduto(this)">
-                    <div class="product-img-wrapper" onclick="event.stopPropagation(); trocarImagem(this)" title="Alterar foto">
+                    <div class="product-img-wrapper" onclick="event.stopPropagation(); abrirDetalhesProduto(this.closest('.product-inner-content'))" title="Ver detalhes">
                         <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" class="product-img">
                     </div>
                     <div class="product-content">
@@ -1457,7 +1401,7 @@
         function filtrarCategoria(cat, elemWrapper) {
             categoriaAtiva = cat;
             document.querySelectorAll('.category-pill-wrapper').forEach(p => p.classList.remove('active'));
-            elemWrapper.classList.add('active');
+            if(elemWrapper) elemWrapper.classList.add('active');
 
             let cards = document.querySelectorAll('.product-card');
             cards.forEach(card => {
@@ -1508,17 +1452,6 @@
         }
 
         function adicionarAoCarrinho(btn) {
-            if (document.body.classList.contains('editing-mode')) {
-                alert("Termine de editar seu site e baixe o arquivo HTML pronto antes de testar o cardápio!");
-                return;
-            }
-
-            let statusLoja = verificarHorarioFuncionamento();
-            if (!statusLoja.aberto) {
-                alert(`Nosso estabelecimento está fechado no momento!\nHorário de atendimento: das ${statusLoja.openTime} às ${statusLoja.closeTime}.`);
-                return;
-            }
-
             let card = btn.closest('.product-card');
             let nome = card.querySelector('.product-title').innerText;
             let precoTexto = card.querySelector('.product-price').innerText.replace('R$', '').trim().replace(',', '.');
@@ -1602,7 +1535,7 @@
             }
 
             let estabelecimento = document.querySelector('.brand span').innerText;
-            let whatsappNum = document.getElementById('whatsappNumber').value.trim() || '5511954962246';
+            let whatsappNum = document.getElementById('whatsappNumber') ? document.getElementById('whatsappNumber').value.trim() : '5511954962246';
 
             let mensagem = `*Novo Pedido - ${estabelecimento}*\n\n`;
             mensagem += `*Cliente:* ${nomeCliente}\n`;
@@ -1640,18 +1573,25 @@
 
             let codigoHTML = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
             
+            // Controle de numeração incremental automática para o arquivo
+            let fileCount = parseInt(localStorage.getItem('burgercraft_file_count') || '0');
+            let nomeArquivo = fileCount === 0 ? 'cardapio.html' : `cardapio${fileCount}.html`;
+            localStorage.setItem('burgercraft_file_count', fileCount + 1);
+
             let blob = new Blob([codigoHTML], { type: 'text/html;charset=utf-8' });
+            let url = URL.createObjectURL(blob);
             let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'cardapio.html';
+            link.href = url;
+            link.download = nomeArquivo;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
 
-            alert("Arquivo 'cardapio.html' baixado com sucesso na sua pasta de Downloads!");
+            alert(`Arquivo '${nomeArquivo}' baixado com sucesso na sua pasta de Downloads!`);
             location.reload();
         }
     </script>
-</body>
-</html>
-```
+
+
+</body></html>
