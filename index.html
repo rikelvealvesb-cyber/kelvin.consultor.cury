@@ -26,33 +26,34 @@
             position: absolute;
             inset: 0;
             z-index: 0;
+            transition: transform 0.2s ease-out;
         }
 
         .user-pulse {
-            width: 50px; height: 50px;
-            background: rgba(66, 133, 244, 0.3);
+            width: 60px; height: 60px;
+            background: rgba(66, 133, 244, 0.35);
             border-radius: 50%;
             position: absolute;
             animation: pulse-ring 2s infinite;
+            top: -10px; left: -10px;
         }
         .user-dot {
-            width: 24px; height: 24px;
+            width: 40px; height: 40px;
             background: #2563eb;
-            border: 3px solid #ffffff;
+            border: 4px solid #ffffff;
             border-radius: 50%;
             position: absolute;
-            top: 13px; left: 13px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 10px;
-            z-index: 1000;
+            font-size: 16px;
+            transition: transform 0.3s ease;
         }
         @keyframes pulse-ring {
             0% { transform: scale(0.4); opacity: 1; }
-            100% { transform: scale(2.2); opacity: 0; }
+            100% { transform: scale(2.4); opacity: 0; }
         }
 
         .panel-slide { transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); }
@@ -279,7 +280,7 @@
                         }
 
                         userLatLng = L.latLng(newLat, newLng);
-                        updateUserMarker(userLatLng);
+                        updateUserMarker(userLatLng, currentBearing);
                         
                         if (position.coords.speed !== null && position.coords.speed >= 0) {
                             const speedKmH = Math.round(position.coords.speed * 3.6);
@@ -288,34 +289,38 @@
 
                         if (isFollowingUser) {
                             map.setView(userLatLng, isNavigating ? 19 : 18, { animate: true });
+                            if (isNavigating && currentBearing) {
+                                // Gira o mapa na direção do movimento do usuário
+                                document.getElementById('map').style.transform = `rotate(${-currentBearing}deg)`;
+                            }
                         }
                     },
                     (err) => {
                         userLatLng = L.latLng(-23.5505, -46.6333);
-                        updateUserMarker(userLatLng);
+                        updateUserMarker(userLatLng, 0);
                     },
                     { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
                 );
             }
         }
 
-        function updateUserMarker(latlng) {
-            const iconHtml = `<div class="user-pulse"></div><div class="user-dot"><i class="fa-solid fa-bicycle"></i></div>`;
+        function updateUserMarker(latlng, bearing) {
+            const iconHtml = `<div class="user-pulse"></div><div class="user-dot" style="transform: rotate(${bearing}deg);"><i class="fa-solid fa-bicycle"></i></div>`;
 
             if (!userMarker) {
                 const icon = L.divIcon({
                     className: 'user-icon',
                     html: iconHtml,
-                    iconSize: [50, 50],
-                    iconAnchor: [25, 25]
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
                 });
-                userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 9999 }).addTo(map);
+                userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 10000 }).addTo(map);
             } else {
                 const icon = L.divIcon({
                     className: 'user-icon',
                     html: iconHtml,
-                    iconSize: [50, 50],
-                    iconAnchor: [25, 25]
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
                 });
                 userMarker.setIcon(icon);
                 userMarker.setLatLng(latlng);
@@ -324,6 +329,7 @@
 
         function centerOnUser() {
             isFollowingUser = true;
+            document.getElementById('map').style.transform = `rotate(0deg)`;
             if (userLatLng) {
                 map.setView(userLatLng, isNavigating ? 19 : 18, { animate: true });
             }
@@ -425,11 +431,12 @@
             if (!userLatLng || !destinationLatLng) return;
 
             try {
+                // Utiliza o perfil OSRM de bicicleta com velocidade média ajustada para ~15 km/h reais
                 const res = await fetch(`https://router.project-osrm.org/route/v1/bike/${userLatLng.lng},${userLatLng.lat};${destinationLatLng.lng},${destinationLatLng.lat}?overview=false`);
                 const data = await res.json();
                 if (data && data.routes && data.routes.length > 0) {
                     const summary = data.routes[0];
-                    const totalMinutes = Math.round((summary.duration / 60) * 1.15);
+                    const totalMinutes = Math.round((summary.duration / 60) * 1.8);
                     document.getElementById('timeBike').innerText = formatMinutesToHours(totalMinutes);
                 }
             } catch(e) {
@@ -468,7 +475,7 @@
                 const routes = e.routes;
                 if (routes && routes.length > 0) {
                     const summary = routes[0].summary;
-                    const totalMinutes = Math.round((summary.totalTime / 60) * 1.15);
+                    const totalMinutes = Math.round((summary.totalTime / 60) * 1.8);
                     const totalKm = (summary.totalDistance / 1000).toFixed(1);
 
                     document.getElementById('nav-time').innerText = formatMinutesToHours(totalMinutes);
@@ -486,6 +493,7 @@
         function cancelNavigation() {
             isNavigating = false;
             isFollowingUser = true;
+            document.getElementById('map').style.transform = `rotate(0deg)`;
             document.getElementById('view-navigation').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
             if (routingControl) map.removeControl(routingControl);
