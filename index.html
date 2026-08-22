@@ -20,21 +20,40 @@
         .leaflet-control-attribution, .leaflet-control-zoom { display: none !important; }
         .leaflet-routing-container { display: none !important; }
 
+        /* Contêiner de rotação expansivo para evitar corte nas bordas */
+        #map-wrapper {
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            transition: transform 0.5s ease;
+            z-index: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
         .user-pulse {
-            width: 36px; height: 36px;
+            width: 44px; height: 44px;
             background: rgba(66, 133, 244, 0.25);
             border-radius: 50%;
             position: absolute;
             animation: pulse-ring 2s infinite;
         }
         .user-dot {
-            width: 16px; height: 16px;
+            width: 20px; height: 20px;
             background: #4285f4;
             border: 3px solid #ffffff;
             border-radius: 50%;
             position: absolute;
-            top: 10px; left: 10px;
+            top: 12px; left: 12px;
             box-shadow: 0 0 8px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8px;
         }
         @keyframes pulse-ring {
             0% { transform: scale(0.4); opacity: 1; }
@@ -44,17 +63,19 @@
         .panel-slide { transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); }
     </style>
 </head>
-<body class="h-full w-full flex flex-col relative text-gray-100">
+<body class="h-full w-full flex flex-col relative text-gray-100 overflow-hidden">
 
-    <!-- MAPA -->
-    <div id="map" class="absolute inset-0 w-full h-full z-0"></div>
+    <!-- MAPA COM SUPORTE A ROTAÇÃO EXPANDIDA -->
+    <div id="map-wrapper">
+        <div id="map"></div>
+    </div>
 
     <!-- TELA PRINCIPAL -->
-    <div id="view-home" class="absolute inset-0 z-10 flex flex-col justify-between pointer-events-none p-3 pb-16">
+    <div id="view-home" class="absolute inset-0 z-10 flex flex-col justify-between pointer-events-none p-3 pb-6">
         
         <!-- Barra de Pesquisa com Autocomplete -->
         <div class="pointer-events-auto">
-            <div class="bg-[#2d2d2d] shadow-2xl rounded-full flex items-center px-4 py-3 mx-1 mt-3 border border-gray-700/60">
+            <div class="bg-[#2d2d2d] shadow-2xl rounded-full flex items-center px-4 py-3 mx-1 mt-3 border border-gray-700/65">
                 <button onclick="clearSearch()" class="text-gray-300 mr-3 text-lg hover:text-white transition">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
@@ -69,8 +90,8 @@
             <div id="suggestionsBox" class="absolute left-4 right-4 mt-2 bg-[#1e1e1e] border border-gray-700 rounded-2xl shadow-2xl hidden max-h-60 overflow-y-auto z-30"></div>
         </div>
 
-        <!-- Botão de Centralizar Flutuante (Posicionado mais acima) -->
-        <div class="pointer-events-auto flex justify-end px-2 mb-16">
+        <!-- Botão de Centralizar Flutuante (Posicionado acima da área onde o painel aparece) -->
+        <div class="pointer-events-auto flex justify-end px-2 mb-[310px]">
             <button onclick="centerOnUser()" class="w-12 h-12 bg-[#2d2d2d] text-blue-400 shadow-2xl rounded-2xl flex items-center justify-center text-xl border border-gray-700 active:scale-95 transition">
                 <i class="fa-solid fa-location-crosshairs"></i>
             </button>
@@ -83,8 +104,8 @@
         <p class="text-white font-medium text-sm tracking-wide">Traçando rota...</p>
     </div>
 
-    <!-- TELA 2: FICHA DO LOCAL SELECIONADO (Painel Inferior Mais Acima) -->
-    <div id="view-place-sheet" class="absolute inset-x-0 bottom-6 z-20 mx-3 bg-[#1e1e1e] rounded-3xl shadow-2xl p-5 border border-gray-700 panel-slide translate-y-[120%] flex flex-col max-h-[75vh]">
+    <!-- TELA 2: FICHA DO LOCAL SELECIONADO (Painel Inferior Flutuante) -->
+    <div id="view-place-sheet" class="absolute inset-x-0 bottom-4 z-20 mx-3 bg-[#1e1e1e] rounded-3xl shadow-2xl p-4 border border-gray-700 panel-slide translate-y-[120%] flex flex-col max-h-[80vh]">
         <div class="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-3"></div>
         
         <div class="flex justify-between items-start mb-2">
@@ -104,23 +125,27 @@
 
         <p class="text-xs text-gray-400 mb-3">Ponto de Interesse • PoleMaps</p>
 
-        <!-- Seletor de Veículos e Tempos -->
-        <div class="grid grid-cols-3 gap-2 mb-4 bg-[#2d2d2d] p-2 rounded-2xl border border-gray-700">
+        <!-- Seletor de 4 Veículos (Carro, Moto, Bicicleta, Andando) -->
+        <div class="grid grid-cols-4 gap-1.5 mb-4 bg-[#2d2d2d] p-1.5 rounded-2xl border border-gray-700">
             <button onclick="selectVehicle('car')" id="vehicleCar" class="flex flex-col items-center p-2 rounded-xl bg-blue-600 text-white transition">
-                <i class="fa-solid fa-car text-lg mb-1"></i>
-                <span class="text-xs font-bold" id="timeCar">-- min</span>
+                <i class="fa-solid fa-car text-base mb-1"></i>
+                <span class="text-[11px] font-bold" id="timeCar">--</span>
+            </button>
+            <button onclick="selectVehicle('moto')" id="vehicleMoto" class="flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition">
+                <i class="fa-solid fa-motorcycle text-base mb-1"></i>
+                <span class="text-[11px] font-bold" id="timeMoto">--</span>
             </button>
             <button onclick="selectVehicle('bike')" id="vehicleBike" class="flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition">
-                <i class="fa-solid fa-bicycle text-lg mb-1"></i>
-                <span class="text-xs font-bold" id="timeBike">-- min</span>
+                <i class="fa-solid fa-bicycle text-base mb-1"></i>
+                <span class="text-[11px] font-bold" id="timeBike">--</span>
             </button>
             <button onclick="selectVehicle('walk')" id="vehicleWalk" class="flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition">
-                <i class="fa-solid fa-person-walking text-lg mb-1"></i>
-                <span class="text-xs font-bold" id="timeWalk">-- min</span>
+                <i class="fa-solid fa-person-walking text-base mb-1"></i>
+                <span class="text-[11px] font-bold" id="timeWalk">--</span>
             </button>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-2">
+        <div class="grid grid-cols-2 gap-3 mb-1">
             <button onclick="previewRoute()" class="bg-[#2d2d2d] hover:bg-[#3d3d3d] border border-gray-700 text-blue-400 py-3 px-4 rounded-2xl flex items-center justify-center space-x-2 font-medium text-sm transition">
                 <i class="fa-solid fa-diamond-turn-right text-base"></i>
                 <span>Rotas</span>
@@ -133,7 +158,7 @@
     </div>
 
     <!-- TELA 3: NAVEGAÇÃO EM ANDAMENTO -->
-    <div id="view-navigation" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 pb-16 hidden">
+    <div id="view-navigation" class="absolute inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 pb-6 hidden">
         <div class="pointer-events-auto bg-[#0f3833] border border-emerald-700/50 rounded-3xl p-4 shadow-2xl flex items-center justify-between mx-1 mt-2">
             <div class="flex items-center space-x-3">
                 <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center text-white text-3xl shadow">
@@ -149,7 +174,7 @@
             </button>
         </div>
 
-        <div class="pointer-events-auto mx-3 mb-4 bg-[#1e1e1e] border border-gray-800 rounded-3xl p-4 flex items-center justify-between shadow-2xl">
+        <div class="pointer-events-auto mx-3 mb-2 bg-[#1e1e1e] border border-gray-800 rounded-3xl p-4 flex items-center justify-between shadow-2xl">
             <button onclick="cancelNavigation()" class="w-12 h-12 rounded-full bg-[#2d2d2d] flex items-center justify-center text-red-400 text-xl border border-gray-700">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -157,9 +182,11 @@
                 <div id="nav-time" class="text-2xl font-bold text-gray-100">15 min</div>
                 <div id="nav-distance" class="text-xs text-gray-400 font-medium">3,2 km</div>
             </div>
-            <button class="w-12 h-12 rounded-full bg-[#2d2d2d] flex items-center justify-center text-blue-400 text-xl border border-gray-700">
-                <i class="fa-solid fa-share-nodes"></i>
-            </button>
+            <!-- Indicador de Velocidade Atual no lugar de Compartilhar -->
+            <div class="w-16 h-12 rounded-2xl bg-[#2d2d2d] flex flex-col items-center justify-center border border-gray-700 text-blue-400">
+                <span id="current-speed" class="text-base font-bold">0</span>
+                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">km/h</span>
+            </div>
         </div>
     </div>
 
@@ -175,6 +202,7 @@
         let currentVehicle = 'car';
 
         function initMap() {
+            // Inicializa o Leaflet centralizado e sem controles nativos
             map = L.map('map', { zoomControl: false, attributionControl: false }).setView([-23.5505, -46.6333], 15);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 20 }).addTo(map);
 
@@ -191,6 +219,13 @@
                     (position) => {
                         userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
                         updateUserMarker(userLatLng);
+                        
+                        // Atualizar velocidade se disponível (convertendo m/s para km/h)
+                        if (position.coords.speed !== null && position.coords.speed >= 0) {
+                            const speedKmH = Math.round(position.coords.speed * 3.6);
+                            document.getElementById('current-speed').innerText = speedKmH;
+                        }
+
                         if (isFollowingUser && !routingControl) map.setView(userLatLng, 18);
                     },
                     (err) => {
@@ -203,15 +238,27 @@
         }
 
         function updateUserMarker(latlng) {
+            let iconClass = "fa-car";
+            if (currentVehicle === 'moto') iconClass = "fa-motorcycle";
+            if (currentVehicle === 'bike') iconClass = "fa-bicycle";
+            if (currentVehicle === 'walk') iconClass = "fa-person-walking";
+
             if (!userMarker) {
                 const icon = L.divIcon({
                     className: 'user-icon',
-                    html: '<div class="user-pulse"></div><div class="user-dot"></div>',
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 18]
+                    html: `<div class="user-pulse"></div><div class="user-dot"><i class="fa-solid ${iconClass}"></i></div>`,
+                    iconSize: [44, 44],
+                    iconAnchor: [22, 22]
                 });
                 userMarker = L.marker(latlng, { icon: icon, zIndexOffset: 1000 }).addTo(map);
             } else {
+                const icon = L.divIcon({
+                    className: 'user-icon',
+                    html: `<div class="user-pulse"></div><div class="user-dot"><i class="fa-solid ${iconClass}"></i></div>`,
+                    iconSize: [44, 44],
+                    iconAnchor: [22, 22]
+                });
+                userMarker.setIcon(icon);
                 userMarker.setLatLng(latlng);
             }
         }
@@ -302,7 +349,7 @@
 
         function selectVehicle(vehicle) {
             currentVehicle = vehicle;
-            ['car', 'bike', 'walk'].forEach(v => {
+            ['car', 'moto', 'bike', 'walk'].forEach(v => {
                 const btn = document.getElementById(`vehicle${v.charAt(0).toUpperCase() + v.slice(1)}`);
                 if (v === vehicle) {
                     btn.className = "flex flex-col items-center p-2 rounded-xl bg-blue-600 text-white transition";
@@ -310,7 +357,21 @@
                     btn.className = "flex flex-col items-center p-2 rounded-xl text-gray-300 hover:bg-[#3d3d3d] transition";
                 }
             });
+            if (userLatLng) updateUserMarker(userLatLng);
             if (destinationLatLng) calculateRoute(() => {});
+        }
+
+        // Formatação inteligente de tempo (ex: 1 h, 1 h 5 min)
+        function formatMinutesToHours(totalMinutes) {
+            if (totalMinutes < 60) {
+                return `${totalMinutes} min`;
+            }
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            if (minutes === 0) {
+                return `${hours} h`;
+            }
+            return `${hours} h ${minutes} min`;
         }
 
         function estimateTravelTimes() {
@@ -318,12 +379,14 @@
             const distMeters = userLatLng.distanceTo(destinationLatLng);
             
             const carMin = Math.max(2, Math.round(distMeters / 600));
+            const motoMin = Math.max(2, Math.round(distMeters / 650));
             const bikeMin = Math.max(5, Math.round(distMeters / 250));
             const walkMin = Math.max(10, Math.round(distMeters / 80));
 
-            document.getElementById('timeCar').innerText = `${carMin} min`;
-            document.getElementById('timeBike').innerText = `${bikeMin} min`;
-            document.getElementById('timeWalk').innerText = `${walkMin} min`;
+            document.getElementById('timeCar').innerText = formatMinutesToHours(carMin);
+            document.getElementById('timeMoto').innerText = formatMinutesToHours(motoMin);
+            document.getElementById('timeBike').innerText = formatMinutesToHours(bikeMin);
+            document.getElementById('timeWalk').innerText = formatMinutesToHours(walkMin);
         }
 
         function previewRoute() {
@@ -347,6 +410,7 @@
             if (routingControl) map.removeControl(routingControl);
 
             let profile = 'car';
+            if (currentVehicle === 'moto') profile = 'car'; // OSRM utiliza perfil de carro para tráfego motorizado geral
             if (currentVehicle === 'bike') profile = 'bike';
             if (currentVehicle === 'walk') profile = 'foot';
 
@@ -368,10 +432,9 @@
                     const p2 = routes[0].coordinates[1];
                     const angle = Math.atan2(p2.lng - p1.lng, p2.lat - p1.lat) * (180 / Math.PI);
                     
-                    const mapContainerNode = map.getContainer();
-                    if (mapContainerNode) {
-                        mapContainerNode.style.transition = 'transform 0.5s ease';
-                        mapContainerNode.style.transform = `rotate(${-angle}deg)`;
+                    const mapWrapperNode = document.getElementById('map-wrapper');
+                    if (mapWrapperNode) {
+                        mapWrapperNode.style.transform = `rotate(${-angle}deg)`;
                     }
                 }
 
@@ -385,8 +448,8 @@
         }
 
         function cancelNavigation() {
-            const mapContainerNode = map.getContainer();
-            if (mapContainerNode) mapContainerNode.style.transform = 'rotate(0deg)';
+            const mapWrapperNode = document.getElementById('map-wrapper');
+            if (mapWrapperNode) mapWrapperNode.style.transform = 'rotate(0deg)';
 
             document.getElementById('view-navigation').classList.add('hidden');
             document.getElementById('view-home').classList.remove('hidden');
